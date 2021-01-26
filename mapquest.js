@@ -14,6 +14,7 @@ var data = [
     ["Hanas, Walter J", "Customer M", "BEDFORD PARK", "IL", "US"]
 ];
 
+// MapQuest API key
 const key = "imdY24Bg00uiYRbaHSd066pf3JcyySBn";
 
 let nameUnique = [];

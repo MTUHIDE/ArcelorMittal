@@ -1,3 +1,4 @@
+// Temporary mock customer data
 var data = [
     ["Hanas, Walter J", "Customer A", "MARSHALLTOWN", "IA", "US"],
     ["Pavlosky, Richard, J", "Customer B", "STREETSBORO", "OH", "US"],
@@ -22,12 +23,15 @@ nameUniqueOrdered = [
     [nameUnique[0], timesIn(nameUnique[0])]
 ];
 
+// Gets coordinates of given city/state
+// Returns MapQuest response, employee name, and customer name
 async function getCoor(city, state, name, customer) {
     let response = await fetch('http://www.mapquestapi.com/geocoding/v1/address?key=' + key + '&location=' + city + "," + state);
     let data = await response.json()
     return [data, name, customer];
 }
 
+// Counts the number of customers a given employee represents
 function timesIn(value) {
     let count = 0;
     for (let i = 0; i < data.length; i++) {
@@ -38,6 +42,7 @@ function timesIn(value) {
     return count;
 }
 
+// Hashes a string to generate a unique color
 function strToColor(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -51,6 +56,7 @@ function strToColor(str) {
     return color;
 }
 
+// Performs all inner actions once the HTML page is loaded
 document.addEventListener("DOMContentLoaded", function() {
     L.mapquest.key = key;
 
@@ -62,19 +68,23 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 
     for (let i = 0; i < data.length; i++) {
+        // Stores each item in current customer array in its own variable
         let name = data[i][0];
         let customer = data[i][1];
         let city = data[i][2];
         let state = data[i][3];
         let country = data[i][4];
 
+        // Adds employee name to array of unique employee names (if not already added)
         if (!nameUnique.includes(name)) {
             nameUnique.push(name);
         }
 
+        // Fetches location data from MapQuest
         getCoor(city, state, name, customer).then(fromData => {
             let latLng = fromData[0].results[0].locations[0].displayLatLng;
 
+            // Adds customer marker to map with returned info
             L.mapquest.textMarker([latLng.lat, latLng.lng], {
                 text: fromData[1],
                 subtext: fromData[2],
@@ -89,6 +99,7 @@ document.addEventListener("DOMContentLoaded", function() {
         });
     }
 
+    // Sorts nameUnique into nameUniqueOrdered for printing in alphabetical order
     for (let i = 1; i < nameUnique.length; i++) {
         let count = timesIn(nameUnique[i]);
 
@@ -104,6 +115,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     }
 
+    // Add all employees and their customer count to the info bar on the left of the map
     for (let i = 0; i < nameUniqueOrdered.length; i++) {
         document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding-left: 2px; font-size: 15px; border-style: solid; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + ' (' + nameUniqueOrdered[i][1] + ') </div>';
     }

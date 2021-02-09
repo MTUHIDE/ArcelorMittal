@@ -85,7 +85,7 @@ document.addEventListener("DOMContentLoaded", function() {
             let latLng = fromData[0].results[0].locations[0].displayLatLng;
 
             // Adds customer marker to map with returned info
-            L.mapquest.textMarker([latLng.lat, latLng.lng], {
+            let marker = L.mapquest.textMarker([latLng.lat, latLng.lng], {
                 text: fromData[1],
                 subtext: fromData[2],
                 position: 'down',
@@ -96,6 +96,10 @@ document.addEventListener("DOMContentLoaded", function() {
                     size: 'sm'
                 }
             }).addTo(map);
+
+            // Assign a popup with customer's information to appear above customer's map marker on click
+            let popupContent = '<div>' + city + ', ' + state + '</div><div>' + latLng.lat + ', ' + latLng.lng + '</div><div>' + customer + '</div><div>' + name + '</div>';
+            marker.bindPopup(popupContent).openPopup();
         });
     }
 

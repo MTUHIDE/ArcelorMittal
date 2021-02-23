@@ -19,9 +19,7 @@ var data = [
 const key = "imdY24Bg00uiYRbaHSd066pf3JcyySBn";
 
 var nameUnique = [];
-var nameUniqueOrdered = [
-    [nameUnique[0], timesIn(nameUnique[0])]
-];
+var nameUniqueOrdered = [];
 var map;
 var featureGroup;
 var layer;
@@ -32,6 +30,12 @@ async function getCoor(city, state, name, customer) {
     let response = await fetch('http://www.mapquestapi.com/geocoding/v1/address?key=' + key + '&location=' + city + "," + state);
     let data = await response.json()
     return [data, name, customer];
+}
+
+function reset(){
+	var url = window.location.href;
+    url = url.split('?')[0];
+	location.href=url
 }
 
 // Counts the number of customers a given employee represents
@@ -69,7 +73,15 @@ function initialMapLoad(data){
         layers: L.mapquest.tileLayer('map'),
         zoom: 4
     });
+	const queryString = window.location.search;
+	const url = new URLSearchParams(queryString)
+	try{
+		searchKey = url.get("search").toLowerCase()
+	}catch(error){
+		searchKey = null
+	}
     layer = L.layerGroup().addTo(map);
+	
     for (let i = 0; i < data.length; i++) {
         // Stores each item in current customer array in its own variable
         let name = data[i][0];
@@ -77,32 +89,35 @@ function initialMapLoad(data){
         let city = data[i][2];
         let state = data[i][3];
         let country = data[i][4];
+		
+		if((searchKey == null) || (name.toLowerCase().includes(searchKey) || customer.toLowerCase().includes(searchKey) || city.toLowerCase().includes(searchKey) || state.toLowerCase().includes(searchKey) || country.toLowerCase().includes(searchKey))){		
+			// Adds employee name to array of unique employee names (if not already added)
+			if (!nameUnique.includes(name)) {
+				nameUnique.push(name);
+			}
 
-        // Adds employee name to array of unique employee names (if not already added)
-        if (!nameUnique.includes(name)) {
-            nameUnique.push(name);
-        }
-
-        // Fetches location data from MapQuest
-        getCoor(city, state, name, customer).then(fromData => {
-            let latLng = fromData[0].results[0].locations[0].displayLatLng;
-            let marker = L.marker([latLng.lat, latLng.lng], {
-                text: fromData[1],
-                subtext: fromData[2],
-                position: 'down',
-                type: 'marker',
-                icon: L.mapquest.icons.marker({
-                    primaryColor: strToColor(fromData[1]),
-                    secondaryColor: strToColor(fromData[0].results[0].providedLocation.location),
-                    size: 'sm'
-                })
-            }).addTo(layer);
-             // Assign a popup with customer's information to appear above customer's map marker on click
-             let popupContent = '<div>' + city + ', ' + state + '</div><div>' + latLng.lat + ', ' + latLng.lng + '</div><div>' + customer + '</div><div>' + name + '</div>';
-             marker.bindPopup(popupContent).openPopup();
-        });
+			// Fetches location data from MapQuest
+			getCoor(city, state, name, customer).then(fromData => {
+				let latLng = fromData[0].results[0].locations[0].displayLatLng;
+				let marker = L.marker([latLng.lat, latLng.lng], {
+					text: fromData[1],
+					subtext: fromData[2],
+					position: 'down',
+					type: 'marker',
+					icon: L.mapquest.icons.marker({
+						primaryColor: strToColor(fromData[1]),
+						secondaryColor: strToColor(fromData[0].results[0].providedLocation.location),
+						size: 'sm'
+					})
+				}).addTo(layer);
+				 // Assign a popup with customer's information to appear above customer's map marker on click
+				 let popupContent = '<div>' + city + ', ' + state + '</div><div>' + latLng.lat + ', ' + latLng.lng + '</div><div>' + customer + '</div><div>' + name + '</div>';
+				 marker.bindPopup(popupContent).openPopup();
+			});
+		}
     }
 
+	nameUniqueOrdered.push([nameUnique[0], timesIn([nameUnique[0]])])
     for (let i = 1; i < nameUnique.length; i++) {
         let count = timesIn(nameUnique[i]);
 
@@ -110,14 +125,13 @@ function initialMapLoad(data){
             if (count >= nameUniqueOrdered[j][1]) {
                 nameUniqueOrdered.splice(j, 0, [nameUnique[i], count]);
                 break;
-            } else if (j == nameUniqueOrdered.length - 1) {
+            } else if (j == nameUniqueOrdered.length - 1) {		
                 nameUniqueOrdered.push([nameUnique[i], count]);
                 break;
             }
         }
 
     }
-
     for (let i = 0; i < nameUniqueOrdered.length; i++) {
         document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding-left: 2px; font-size: 15px; border-style: solid; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + ' (' + nameUniqueOrdered[i][1] + ') </div>';
     }
@@ -155,14 +169,14 @@ function loadIntoMap(people){
                 type: 'marker',
                 icon: L.mapquest.icons.marker({
                     primaryColor: strToColor(fromData[1]),
-                    secondaryColor: '#000000',
+                    secondaryColor: strToColor(fromData[0].results[0].providedLocation.location),
                     size: 'sm'
                 })
             }).addTo(layer);
 
-            // Assign a popup with customer's information to appear above customer's map marker on click
-            let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
-            marker.bindPopup(popupContent).openPopup();
+             // Assign a popup with customer's information to appear above customer's map marker on click
+             let popupContent = '<div>' + city + ', ' + state + '</div><div>' + latLng.lat + ', ' + latLng.lng + '</div><div>' + customer + '</div><div>' + name + '</div>';
+             marker.bindPopup(popupContent).openPopup();
         });
     }
 
@@ -184,7 +198,7 @@ function loadIntoMap(people){
 
     // Add all employees and their customer count to the info bar on the left of the map
     for (let i = 0; i < nameUniqueOrdered.length; i++) {
-        document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
+        document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding-left: 2px; font-size: 15px; border-style: solid; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + ' (' + nameUniqueOrdered[i][1] + ') </div>';
     }
 }
 

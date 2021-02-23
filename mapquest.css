@@ -1,3 +1,7 @@
+* {
+    font-family: Georgia;
+}
+
 #map {
     height: 100%;
     width: 80%;

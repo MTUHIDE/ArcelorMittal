@@ -106,12 +106,12 @@ function initialMapLoad(data){
 					type: 'marker',
 					icon: L.mapquest.icons.marker({
 						primaryColor: strToColor(fromData[1]),
-						secondaryColor: strToColor(fromData[0].results[0].providedLocation.location),
+						secondaryColor: '#000000',
 						size: 'sm'
 					})
 				}).addTo(layer);
 				 // Assign a popup with customer's information to appear above customer's map marker on click
-				 let popupContent = '<div>' + city + ', ' + state + '</div><div>' + latLng.lat + ', ' + latLng.lng + '</div><div>' + customer + '</div><div>' + name + '</div>';
+				 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
 				 marker.bindPopup(popupContent).openPopup();
 			});
 		}
@@ -133,7 +133,7 @@ function initialMapLoad(data){
 
     }
     for (let i = 0; i < nameUniqueOrdered.length; i++) {
-        document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding-left: 2px; font-size: 15px; border-style: solid; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + ' (' + nameUniqueOrdered[i][1] + ') </div>';
+        document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
     }
 }
 
@@ -169,13 +169,13 @@ function loadIntoMap(people){
                 type: 'marker',
                 icon: L.mapquest.icons.marker({
                     primaryColor: strToColor(fromData[1]),
-                    secondaryColor: strToColor(fromData[0].results[0].providedLocation.location),
+                    secondaryColor: '#000000',
                     size: 'sm'
                 })
             }).addTo(layer);
 
              // Assign a popup with customer's information to appear above customer's map marker on click
-             let popupContent = '<div>' + city + ', ' + state + '</div><div>' + latLng.lat + ', ' + latLng.lng + '</div><div>' + customer + '</div><div>' + name + '</div>';
+             let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
              marker.bindPopup(popupContent).openPopup();
         });
     }
@@ -198,7 +198,7 @@ function loadIntoMap(people){
 
     // Add all employees and their customer count to the info bar on the left of the map
     for (let i = 0; i < nameUniqueOrdered.length; i++) {
-        document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding-left: 2px; font-size: 15px; border-style: solid; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + ' (' + nameUniqueOrdered[i][1] + ') </div>';
+        document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
     }
 }
 

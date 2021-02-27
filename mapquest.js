@@ -27,7 +27,7 @@ var layer;
 // Gets coordinates of given city/state
 // Returns MapQuest response, employee name, and customer name
 async function getCoor(city, state, name, customer) {
-    let response = await fetch('http://www.mapquestapi.com/geocoding/v1/address?key=' + key + '&location=' + city + "," + state);
+    let response = await fetch('https://www.mapquestapi.com/geocoding/v1/address?key=' + key + '&location=' + city + "," + state);
     let data = await response.json()
     return [data, name, customer];
 }

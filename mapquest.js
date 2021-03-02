@@ -139,9 +139,8 @@ function initialMapLoad(data){
 
 //Loads results of filter into the map
 function loadIntoMap(people){
-    //Reset values 
-    console.log(people);
-    nameUnique = [];
+    //Reset values
+    nameUnique = [people[0]];
     nameUniqueOrdered = [
      [nameUnique[0], timesIn(nameUnique[0])]
     ];

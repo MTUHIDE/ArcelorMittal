@@ -162,7 +162,7 @@ function loadIntoMap(people){
             let latLng = fromData[0].results[0].locations[0].displayLatLng;
 
             // Adds customer marker to map with returned info
-            let marker = L.mapquest.textMarker([latLng.lat, latLng.lng], {
+            let marker = L.marker([latLng.lat, latLng.lng], {
                 text: fromData[1],
                 subtext: fromData[2],
                 position: 'down',
@@ -193,7 +193,6 @@ function loadIntoMap(people){
                 break;
             }
         }
-
     }
 
     // Add all employees and their customer count to the info bar on the left of the map

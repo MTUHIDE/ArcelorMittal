@@ -21,3 +21,29 @@ LEFT JOIN geoname AS b
 ON LOWER(a.State) = LOWER(b.admin1code)
 AND LOWER(a.Location) = LOWER(b.asciiname)
 WHERE b.geonameid IS NOT NULL
+
+/* Updated - Select all fields */
+SELECT *
+FROM CustomerList AS a
+LEFT JOIN geoname AS b
+ON LOWER(a.St) = LOWER(b.admin1code)
+AND LOWER(a.City) = LOWER(b.asciiname)
+WHERE b.geonameid IS NOT NULL
+
+/* New join, more effective */
+SELECT a.Customer, a.St, a.City, b.LATITUDE, b.LONGITUDE
+FROM CustomerList AS a
+LEFT JOIN us_cities AS b
+ON LOWER(a.St) = LOWER(b.STATE_CODE)
+AND LOWER(a.City) = LOWER(b.CITY)
+WHERE b.LATITUDE IS NOT NULL
+GROUP BY a.Customer, a.St, a.City
+
+/* New join, only pulls NULL */
+SELECT a.Customer, a.St, a.City, b.LATITUDE, b.LONGITUDE
+FROM CustomerList AS a
+LEFT JOIN us_cities AS b
+ON LOWER(a.St) = LOWER(b.STATE_CODE)
+AND LOWER(a.City) = LOWER(b.CITY)
+WHERE b.LATITUDE IS NULL
+GROUP BY a.Customer, a.St, a.City

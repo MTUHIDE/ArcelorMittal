@@ -29,13 +29,11 @@
                 <option value="Canada">Canada</option>
                 <option value="Mexico">Mexico</option>
             </select>
-			<div style="padding-top:10px">	
-				<form id="search">
-					<label for="search">Search:</label>
-					<input type="text" id="search" name="search">
-				</form>
-			</div>
-			<div style="padding-bottom:10">
+			<div style="padding:10px">				
+				<input type="text" id="search" name="search">
+				<button type="button" onclick="addKeyWord()">Add</button>
+				<select name="searchType" id="searchType" onchange="setType()"></select>
+				<select name="searchField" id="searchField" onchange="setField()"></select>
 				<button type="button" onclick="reset()">Clear</button>
 			</div>
         <div id="map"></div>

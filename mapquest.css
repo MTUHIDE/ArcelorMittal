@@ -1,16 +1,43 @@
 * {
-    font-family: Georgia;
+	font-family: Georgia;
 }
 
 #map {
-    height: 100%;
-    width: 80%;
-    float: left
+	height: 100%;
+	width: 80%;
+	float: left;
 }
 
-#people {
-    height: 100%;
-    width: 20%;
-    float: left;
-    background-color: ivory;
+#people,
+#customers {
+	height: 100%;
+	width: 20%;
+	float: left;
+	background-color: ivory;
+}
+
+.tabs {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+    justify-content: space-around;
+    padding: 5px;
+}
+
+.people-tab-button {
+    border-radius: 8px;
+    font-size: 16px;
+    padding: 5px 10px;
+}
+
+.people-tab-button:hover {
+    cursor: pointer;
+}
+
+.selected-tab {
+    background-color: darkgray;
+}
+
+.hidden {
+	display: none;
 }

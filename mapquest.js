@@ -27,6 +27,18 @@ var keys = [];
 var types = ['and', 'or']
 var fields = ['all', 'name', 'customer', 'city', 'state', 'country']
 
+// Switches from Customers tab to TSEs tab
+const switchToTSE = () => {
+	document.getElementById("people").classList.remove("hidden");
+	document.getElementById("customers").classList.add("hidden");
+}
+
+// Switches from TSEs tab to Customers tab
+const switchToCustomers = () => {
+	document.getElementById("people").classList.add("hidden");
+	document.getElementById("customers").classList.remove("hidden");
+}
+
 // Gets coordinates of given city/state
 // Returns MapQuest response, employee name, and customer name
 async function getCoor(city, state, name, customer) {
@@ -282,6 +294,10 @@ function initialMapLoad(data){
 		for (let i = 0; i < nameUniqueOrdered.length; i++) {
 			document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
 		}
+	}
+
+	for(let i = 0; i < data.length; i++) {
+		document.getElementById("customers").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(data[i][0]) + ';">' + data[i][1] + '</div>';
 	}
 }
 

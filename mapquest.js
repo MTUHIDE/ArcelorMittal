@@ -1,19 +1,5 @@
 // Temporary mock customer data
-var data = [
-    ["Hanas, Walter J", "Customer A", "MARSHALLTOWN", "IA", "US"],
-    ["Pavlosky, Richard, J", "Customer B", "STREETSBORO", "OH", "US"],
-    ["Leos, Jorge", "Customer C", "HOUSTON", "TX", "US"],
-    ["Molek, Chris J.", "Customer D", "HILLSDALE", "MI", "US"],
-    ["Wallace, Pat", "Customer E", "NEW BOSTON", "MI", "US"],
-    ["Molek, Chris J.", "Customer F", "TAYLOR", "MI", "US"],
-    ["Niccolai, David", "Customer G", "ALSIP", "IL", "US"],
-    ["Teasley, Emily", "Customer H", "SOUTHFIELD", "MI", "US"],
-    ["Niccolai, David", "Customer I", "DEERFIELD", "IL", "US"],
-    ["Galish, John D", "Customer J", "BIRMINGHAM", "AL", "US"],
-    ["O'Rourke, Ed", "Customer K", "INDIANOLA", "PA", "US"],
-    ["Galish, John D", "Customer L", "HOOVER", "AL", "US"],
-    ["Hanas, Walter J", "Customer M", "BEDFORD PARK", "IL", "US"]
-];
+var data;
 
 // MapQuest API key
 const key = "imdY24Bg00uiYRbaHSd066pf3JcyySBn";
@@ -173,7 +159,8 @@ function checkField(field, name, customer, city, state, country, key){
 //Performs the inital load of the map when loading the site
 function initialMapLoad(data){
 	loadkeys()
-	initSearch()
+    initSearch()
+
     L.mapquest.key = key;
 
     // 'map' refers to a <div> element with the ID map
@@ -183,14 +170,15 @@ function initialMapLoad(data){
         zoom: 4
     });
     layer = L.layerGroup().addTo(map);
-	
+    console.log(data);
+    
     for (let i = 0; i < data.length; i++) {
         // Stores each item in current customer array in its own variable
-        let name = data[i][0];
-        let customer = data[i][1];
-        let city = data[i][2];
-        let state = data[i][3];
-        let country = data[i][4];
+        let name = data[i][3];
+        let customer = data[i][0];
+        let city = data[i][1];
+        let state = data[i][2];
+        let country = "United States";
 		
 		const urlp = new URLSearchParams(window.location.search)
 		var type = 'and'
@@ -295,11 +283,11 @@ function loadIntoMap(people){
     layer.clearLayers();
     layer = L.layerGroup().addTo(map);
     for (let i = 0; i < people.length; i++) {
-        let name = people[i][0];
-        let customer = people[i][1];
-        let city = people[i][2];
-        let state = people[i][3];
-        let country = people[i][4];
+        let name = data[i][3];
+        let customer = data[i][0];
+        let city = data[i][1];
+        let state = data[i][2];
+        let country = "United States";
 
         if (!nameUnique.includes(name)) {
             nameUnique.push(name);
@@ -349,4 +337,4 @@ function loadIntoMap(people){
     }
 }
 
-document.addEventListener("DOMContentLoaded", function() {  initialMapLoad(data)});
+document.addEventListener("DOMContentLoaded", function() {  getCustomerList()});

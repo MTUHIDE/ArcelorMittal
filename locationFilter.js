@@ -72,18 +72,21 @@ boundingBoxes=[
 ]
 
 var filteredPeople = [];
-async function filterPeople(box, data){
+async function filterPeople(selectedReigon, data){
     filteredPeople = [];
     for(i = 0; i < data.length; i++){
         //Get persons details
-        console.log(data[i]);
-        let name = data[i][0];
-        let customer = data[i][1];
-        let city = data[i][2];
-        let state = data[i][3];
-        let country = data[i][4];
-
-        await getCoor(city, state, name, customer).then( result => {
+        let name = data[i][3];
+        let customer = data[i][0];
+        let city = data[i][1];
+        let state = data[i][2];
+        let country = "United States";
+        let reigon = data[i][4];
+        if(reigon == selectedReigon){
+            filteredPeople.push(data[i]);
+        }
+        
+        /*await getCoor(city, state, name, customer).then( result => {
             //Check to see if the person is within the bounding box for the selected location
             let latLng = result[0].results[0].locations[0].displayLatLng;
             let latitude = latLng.lat;
@@ -91,25 +94,32 @@ async function filterPeople(box, data){
             if((boundingBoxes[box].NWPoint.lat > latitude  && latitude > boundingBoxes[box].SEPoint.lat) && (boundingBoxes[box].NWPoint.long < longitude && longitude < boundingBoxes[box].SEPoint.long)){
                 filteredPeople.push(data[i]);
             }
-        });   
+        });   */
     }
 }
 
 
 function filter(location, data){
     let box;
-    for(i=0; i < boundingBoxes.length; i++){
+    /*for(i=0; i < boundingBoxes.length; i++){
         if(boundingBoxes[i].Location == location){
         box = i;
         console.log(box);
         break;
         }
+    }*/
+    if(location == "All"){
+        loadIntoMap(data);
+        return;
     }
+    filterPeople(location,data);
     document.getElementById("people").innerHTML = "<div><p>Filtering....</p></div>"
-    filterPeople(box,data).then( results => {
+   /* filterPeople(box,data).then( results => {
         console.log(filteredPeople);
         document.getElementById("people").innerHTML = " ";
         loadIntoMap(filteredPeople);//Load filtered people into map
-    });
+    });*/
+    document.getElementById("people").innerHTML= " ";
+    loadIntoMap(filteredPeople);   
   
 }

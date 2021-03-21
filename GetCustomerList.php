@@ -5,8 +5,8 @@ header("Access-Control-Allow-Headers: X-Requested-With");
 
 $servername = "classdb.it.mtu.edu";
 /* Uncomment and insert credentials here*/
-$username = "mtsayles";
-$password = "343Guiltyspark";
+$username = "arcelormittal_ro";
+$password = "password";
 
 try{
     $conn = new PDO("mysql:host=$servername;port=3307; dbname=arcelormittal", $username,

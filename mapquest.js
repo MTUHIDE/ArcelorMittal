@@ -2,7 +2,7 @@
 var data;
 
 // MapQuest API key
-const key = "imdY24Bg00uiYRbaHSd066pf3JcyySBn";
+const key = "96Z6OZJyQnga3ZZNVG2pTPxMJgHFbWCL";
 
 var nameUnique = [];
 var nameUniqueOrdered = [];

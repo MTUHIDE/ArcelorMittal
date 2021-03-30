@@ -1,0 +1,38 @@
+/*
+This css is used to hide anything with the "no-print" tag when the user prints.
+*/
+@media print
+{    
+    .no-print /* This tag hides elements on print */
+    {
+        display: none !important;
+    }
+
+    .page-break
+    {
+        page-break-after: always;
+    }
+
+    .last-page{
+        page-break-after: avoid;
+    }
+	
+	@page {
+		/* This defaults the page into a landscape orientation for printing */
+		size: landscape
+		
+		/* The next two lines hide the date and URL from the print page */
+		size: auto;	
+		margin: 0mm;
+	}
+	
+	/* The next two lines make the MapQuest map take up the full page */
+	#map {
+	height: 100%;
+	width: 100%;
+	}
+	
+	/* Any other CSS else we want to change during a print can be put here */
+	
+	
+}

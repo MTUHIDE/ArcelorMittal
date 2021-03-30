@@ -59,6 +59,19 @@ function initSearch(){
 	}
 }
 
+function removeKey(key){
+	var newParams = ""
+	for(var i = 0; i < keys.length; i++){
+		if(keys[i] != key){
+			newParams += keys[i] + "*"
+		}	
+	}
+	newParams = newParams.substring(0, newParams.length-1)
+	const urlp = new URLSearchParams(window.location.search)
+	var search = urlp.set('search', newParams)
+	window.location.href = "?" + urlp.toString()
+}
+
 //load keys from url
 function loadkeys(){
 	const urlp = new URLSearchParams(window.location.search)
@@ -67,6 +80,7 @@ function loadkeys(){
 		urlKeysParsed = search.split('*')
 		for(let i = 0; i < urlKeysParsed.length; i++){
 			keys.push(urlKeysParsed[i])
+			document.getElementById("keys").innerHTML += "<div style='display: inline-block; margin: 5px; background-color:lightblue; padding-left: 5px; padding-right: 5px; border-style: solid;'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + urlKeysParsed[i] + "') style='margin-right: -5px; margin-left: 10px; float: right; font-size: 11px'>&times</button></div>"
 		}
 	}
 }

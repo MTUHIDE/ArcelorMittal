@@ -168,6 +168,13 @@ function checkField(field, name, customer, city, state, country, key){
 	}
 }
 
+// Allows map to center on a single customer marker
+let navigationControl;
+function centerMap(lat, lng) {
+	navigationControl._center = L.latLng(lat, lng);
+	navigationControl._zoom = 11;
+}
+
 //Performs the inital load of the map when loading the site
 function initialMapLoad(data){
 	loadkeys()
@@ -183,6 +190,9 @@ function initialMapLoad(data){
     });
     layer = L.layerGroup().addTo(map);
     console.log(data);
+
+	navigationControl = L.mapquest.navigationControl();
+	map.addControl(navigationControl);
     
     for (let i = 0; i < data.length; i++) {
         // Stores each item in current customer array in its own variable
@@ -257,6 +267,9 @@ function initialMapLoad(data){
 				 // Assign a popup with customer's information to appear above customer's map marker on click
 				 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
 				 marker.bindPopup(popupContent).openPopup();
+
+				 // Adds clickable customer entry in leftbar list
+				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + data[i][0] + '</div>';
 			});
 		}
     }
@@ -282,10 +295,6 @@ function initialMapLoad(data){
 		for (let i = 0; i < nameUniqueOrdered.length; i++) {
 			document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
 		}
-	}
-
-	for(let i = 0; i < data.length; i++) {
-		document.getElementById("customers").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(data[i][0]) + ';">' + data[i][0] + '</div>';
 	}
 }
 

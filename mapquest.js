@@ -191,6 +191,7 @@ let navigationControl;
 function centerMap(lat, lng) {
 	navigationControl._center = L.latLng(lat, lng);
 	navigationControl._zoom = 11;
+	document.getElementsByClassName("leaflet-control-mapquest-navigation-reset")[0].click();
 }
 
 //Performs the inital load of the map when loading the site

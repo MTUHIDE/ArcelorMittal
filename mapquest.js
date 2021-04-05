@@ -17,12 +17,16 @@ var fields = ['all', 'name', 'customer', 'city', 'state', 'country']
 const switchToTSE = () => {
 	document.getElementById("people").classList.remove("hidden");
 	document.getElementById("customers").classList.add("hidden");
+	document.getElementById("tse-button").classList.add("selected-tab");
+	document.getElementById("customer-button").classList.remove("selected-tab");
 }
 
 // Switches from TSEs tab to Customers tab
 const switchToCustomers = () => {
 	document.getElementById("people").classList.add("hidden");
 	document.getElementById("customers").classList.remove("hidden");
+	document.getElementById("tse-button").classList.remove("selected-tab");
+	document.getElementById("customer-button").classList.add("selected-tab");
 }
 
 // Gets coordinates of given city/state
@@ -337,6 +341,9 @@ function loadIntoMap(people){
              // Assign a popup with customer's information to appear above customer's map marker on click
              let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
              marker.bindPopup(popupContent).openPopup();
+
+			 // Adds clickable customer entry in leftbar list
+			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + data[i][0] + '</div>';
         });
     }
 

@@ -16,17 +16,13 @@
 
 	<body>
 		<div class="container">
-			<div id="people">
+			<div id="people-div">
 				<div class="tabs">
-					<button class="people-tab-button selected-tab" onclick="switchToTSE()">TSEs</button>
-					<button class="people-tab-button" onclick="switchToCustomers()">Customers</button>
+					<button id="tse-button" class="people-tab-button selected-tab" onclick="switchToTSE()">TSEs</button>
+					<button id="customer-button" class="people-tab-button" onclick="switchToCustomers()">Customers</button>
 				</div>
-			</div>
-			<div id="customers" class="hidden">
-				<div class="tabs">
-					<button class="people-tab-button" onclick="switchToTSE()">TSEs</button>
-					<button class="people-tab-button selected-tab" onclick="switchToCustomers()">Customers</button>
-				</div>
+				<div id="people"></div>
+				<div id="customers" class="hidden"></div>
 			</div>
 			<div id="locationFilter"></div>
 			<label for="locations">Select a location</label>

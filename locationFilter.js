@@ -120,6 +120,7 @@ function filter(location, data){
         loadIntoMap(filteredPeople);//Load filtered people into map
     });*/
     document.getElementById("people").innerHTML= " ";
+    document.getElementById("customers").innerHTML = " ";
     loadIntoMap(filteredPeople);   
   
 }

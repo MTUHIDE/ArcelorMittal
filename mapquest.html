@@ -12,41 +12,52 @@
 		<script src="locationFilter.js"></script>
 		<script src="GetTSEInfo.js"></script>
 		<link type="text/css" rel="stylesheet" href="mapquest.css" />
+		<link type="text/css" rel="stylesheet" href="print.css" />
 	</head>
 
 	<body>
 		<div class="container">
-			<div id="people-div">
-				<div class="tabs">
-					<button id="tse-button" class="people-tab-button selected-tab" onclick="switchToTSE()">TSEs</button>
-					<button id="customer-button" class="people-tab-button" onclick="switchToCustomers()">Customers</button>
+			<div class="no-print">
+				<div id="people-div">
+					<div class="tabs">
+						<button id="tse-button" class="people-tab-button selected-tab" onclick="switchToTSE()">
+							TSEs
+						</button>
+						<button id="customer-button" class="people-tab-button" onclick="switchToCustomers()">
+							Customers
+						</button>
+					</div>
+					<div id="people"></div>
+					<div id="customers" class="hidden"></div>
+				</div>
+				<div id="locationFilter"></div>
+				<label for="locations">Select a location</label>
+				<button onclick="getTSESummarybyName()">TEST</button>
+				<select
+					name="locations"
+					id="locationSelect"
+					onchange="filter(this.options[this.selectedIndex].value, data)"
+				>
+					<option value="All">All</option>
+					<option value="East">North East US</option>
+					<option value="Midwest">Midwest US</option>
+					<option value="Southern">Southern US</option>
+					<option value="Western">Western US</option>
+					<option value="Canada">Canada</option>
+					<option value="Mexico">Mexico</option>
+				</select>
+				<div style="padding: 10px">
+					<input type="text" id="search" name="search" />
+					<button type="button" onclick="addKeyWord()">Add</button>
+					<select name="searchType" id="searchType" onchange="setType()"></select>
+					<select name="searchField" id="searchField" onchange="setField()"></select>
+					<button type="button" onclick="reset()">Clear</button>
+					<button onclick="javascript:window.print()">Print</button>
 				</div>
 				<div id="people"></div>
 				<div id="customers" class="hidden"></div>
 			</div>
-			<div id="locationFilter"></div>
-			<label for="locations">Select a location</label>
-			<button onclick="getTSESummarybyName()">TEST</button>
-			<select
-				name="locations"
-				id="locationSelect"
-				onchange="filter(this.options[this.selectedIndex].value, data)"
-			>
-				<option value="All">All</option>
-				<option value="East">North East US</option>
-				<option value="Midwest">Midwest US</option>
-				<option value="Southern">Southern US</option>
-				<option value="Western">Western US</option>
-				<option value="Canada">Canada</option>
-				<option value="Mexico">Mexico</option>
-			</select>
-			<div style="padding: 10px">
-				<input type="text" id="search" name="search" />
-				<button type="button" onclick="addKeyWord()">Add</button>
-				<select name="searchType" id="searchType" onchange="setType()"></select>
-				<select name="searchField" id="searchField" onchange="setField()"></select>
-				<button type="button" onclick="reset()">Clear</button>
-			</div>
+			<div style="padding-bottom: 10px" id="keys"></div>
 			<div id="map"></div>
 		</div>
 	</body>

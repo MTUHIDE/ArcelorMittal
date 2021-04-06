@@ -65,7 +65,6 @@ function initSearch(){
 
 function removeKey(key){
 	key = key.replace("+", " ")
-	console.log
 	var newParams = ""
 	for(var i = 0; i < keys.length; i++){
 		if(keys[i] != key){

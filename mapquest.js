@@ -64,6 +64,7 @@ function initSearch(){
 }
 
 function removeKey(key){
+	key = key.replace("+", " ")
 	var newParams = ""
 	for(var i = 0; i < keys.length; i++){
 		if(keys[i] != key){
@@ -84,7 +85,9 @@ function loadkeys(){
 		urlKeysParsed = search.split('*')
 		for(let i = 0; i < urlKeysParsed.length; i++){
 			keys.push(urlKeysParsed[i])
-			document.getElementById("keys").innerHTML += "<div style='display: inline-block; margin: 5px; background-color:lightblue; padding-left: 5px; padding-right: 5px; border-style: solid;'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + urlKeysParsed[i] + "') style='margin-right: -5px; margin-left: 10px; float: right; font-size: 11px'>&times</button></div>"
+			nonSpace = urlKeysParsed[i].replace(" ", "+")
+			console.log(nonSpace)
+			document.getElementById("keys").innerHTML += "<div style='display: inline-block; margin: 5px; background-color:lightblue; padding-left: 5px; padding-right: 5px; border-style: solid;'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + nonSpace + "') style='margin-right: -5px; margin-left: 10px; float: right; font-size: 11px'>&times</button></div>"
 		}
 	}
 }
@@ -101,7 +104,10 @@ function reload(newKey){
 	const urlp = new URLSearchParams(window.location.search)
 	if(urlp.has('search')){
 		var search = urlp.get('search')
-		search += "*" + newKey
+		if(search.length != 0){
+			search += "*"
+		}
+		search += newKey
 		urlp.set('search', search)
 	} else {
 		urlp.append('search', newKey)
@@ -215,7 +221,7 @@ function initialMapLoad(data){
         zoom: 4
     });
     layer = L.layerGroup().addTo(map);
-    console.log(data);
+    //console.log(data);
 
 	navigationControl = L.mapquest.navigationControl();
 	map.addControl(navigationControl);
@@ -244,7 +250,7 @@ function initialMapLoad(data){
 		if(type == 'and'){
 			pass = true
 			for(let i = 0; i < keys.length; i++){
-				searchKey = keys[i].toLowerCase()
+				searchKey = keys[i].toLowerCase().replace("+", " ")
 				if(field == 'all'){
 					if(!(name.toLowerCase().includes(searchKey) || customer.toLowerCase().includes(searchKey) || city.toLowerCase().includes(searchKey) || state.toLowerCase().includes(searchKey) || country.toLowerCase().includes(searchKey))){
 						pass = false

@@ -2,7 +2,7 @@
 var data;
 
 // MapQuest API key
-const key = "96Z6OZJyQnga3ZZNVG2pTPxMJgHFbWCL";
+const key = "Ao6wUe2zwTFeXVlE6kSxwDxVwM1My2Fu";
 
 var nameUnique = [];
 var nameUniqueOrdered = [];
@@ -203,8 +203,8 @@ function centerMap(lat, lng) {
 // Adds a search for the name of clicked TSE
 function addTSEFilter(index) {
 	tseName = nameUniqueOrdered[index][0];
-	document.getElementById("search").value = tseName;
-	addKeyWord();
+	keys.push(tseName)
+	reload(tseName)
 }
 
 //Performs the inital load of the map when loading the site

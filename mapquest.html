@@ -32,19 +32,16 @@
 				</div>
 				<div id="locationFilter"></div>
 				<label for="locations">Select a location</label>
-				<button onclick="getTSESummarybyName()">TEST</button>
 				<select
 					name="locations"
 					id="locationSelect"
 					onchange="filter(this.options[this.selectedIndex].value, data)"
 				>
 					<option value="All">All</option>
-					<option value="East">North East US</option>
-					<option value="Midwest">Midwest US</option>
-					<option value="Southern">Southern US</option>
-					<option value="Western">Western US</option>
-					<option value="Canada">Canada</option>
-					<option value="Mexico">Mexico</option>
+					<option value="East">East</option>
+					<option value="Midwest">West</option>
+					<option value="Southern">South</option>
+					<option value="Western">West</option>
 				</select>
 				<div style="padding: 10px">
 					<input type="text" id="search" name="search" />

@@ -86,7 +86,6 @@ function loadkeys(){
 		for(let i = 0; i < urlKeysParsed.length; i++){
 			keys.push(urlKeysParsed[i])
 			nonSpace = urlKeysParsed[i].replace(" ", "+")
-			console.log(nonSpace)
 			document.getElementById("keys").innerHTML += "<div style='display: inline-block; margin: 5px; background-color:lightblue; padding-left: 5px; padding-right: 5px; border-style: solid;'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + nonSpace + "') style='margin-right: -5px; margin-left: 10px; float: right; font-size: 11px'>&times</button></div>"
 		}
 	}
@@ -221,8 +220,6 @@ function initialMapLoad(data){
         zoom: 4
     });
     layer = L.layerGroup().addTo(map);
-    //console.log(data);
-
 	navigationControl = L.mapquest.navigationControl();
 	map.addControl(navigationControl);
     
@@ -231,7 +228,9 @@ function initialMapLoad(data){
         let name = data[i][3];
         let customer = data[i][0];
         let city = data[i][1];
-        let state = data[i][2];
+		let state = data[i][2];
+		//latitdude = data[i][7];
+		//longtitude = data[i][8];
         let country = "United States";
 		
 		const urlp = new URLSearchParams(window.location.search)
@@ -250,7 +249,7 @@ function initialMapLoad(data){
 		if(type == 'and'){
 			pass = true
 			for(let i = 0; i < keys.length; i++){
-				searchKey = keys[i].toLowerCase().replace("+", " ")
+				searchKey = keys[i].toLowerCase()
 				if(field == 'all'){
 					if(!(name.toLowerCase().includes(searchKey) || customer.toLowerCase().includes(searchKey) || city.toLowerCase().includes(searchKey) || state.toLowerCase().includes(searchKey) || country.toLowerCase().includes(searchKey))){
 						pass = false
@@ -281,17 +280,19 @@ function initialMapLoad(data){
 			if (!nameUnique.includes(name)) {
 				nameUnique.push(name);
 			}
-
 			// Fetches location data from MapQuest
+			if(data[i][7] === null || data[i][8]===null){ //If we don't have location coordinates call getCoor
 			getCoor(city, state, name, customer).then(fromData => {
 				let latLng = fromData[0].results[0].locations[0].displayLatLng;
-				let marker = L.marker([latLng.lat, latLng.lng], {
-					text: fromData[1],
-					subtext: fromData[2],
+				data[i][7] = latLng.lat;
+				data[i][8] = latLng.lng;
+				let marker = L.marker([data[i][7], data[i][8]], {
+					text: name,
+					subtext: city,
 					position: 'down',
 					type: 'marker',
 					icon: L.mapquest.icons.marker({
-						primaryColor: strToColor(fromData[1]),
+						primaryColor: strToColor(name),
 						secondaryColor: '#000000',
 						size: 'sm'
 					})
@@ -303,9 +304,31 @@ function initialMapLoad(data){
 				 // Adds clickable customer entry in leftbar list
 				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + data[i][0] + '</div>';
 			});
+		} else {//if we have coordinates use our stored coordinates
+			data[i][7]= parseFloat(data[i][7]);
+			data[i][8] = parseFloat(data[i][8]);
+			let marker = L.marker([data[i][7], data[i][8]], {
+				text: name,
+				subtext: city,
+				position: 'down',
+				type: 'marker',
+				icon: L.mapquest.icons.marker({
+					primaryColor: strToColor(name),
+					secondaryColor: '#000000',
+					size: 'sm'
+				})
+			}).addTo(layer);
+			 // Assign a popup with customer's information to appear above customer's map marker on click
+			 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
+			 marker.bindPopup(popupContent).openPopup();
+
+			 // Adds clickable customer entry in leftbar list
+			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + data[i][7] + ', ' + data[i][8] + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + data[i][0] + '</div>';
+
+		}
 		}
     }
-
+	
 	nameUniqueOrdered.push([nameUnique[0], timesIn([nameUnique[0]])])
     for (let i = 1; i < nameUnique.length; i++) {
         let count = timesIn(nameUnique[i]);
@@ -325,10 +348,13 @@ function initialMapLoad(data){
 		document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
 	} else {
 		for (let i = 0; i < nameUniqueOrdered.length; i++) {
-			document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + i + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
+			document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
 		}
 	}
 }
+
+
+
 
 //Loads results of filter into the map
 function loadIntoMap(people){

@@ -46,28 +46,6 @@ boundingBoxes=[
             lat:32,
             long:-114
         }
-    },
-    {
-        Location: "Canada",
-        NWPoint:{
-            lat: 60,
-            long: -140
-        },
-        SEPoint:{
-            lat:39,
-            long:-49
-        }
-    },
-    {
-        Location: "Mexico",
-        NWPoint:{
-            lat: 32,
-            long: -117,
-        },
-        SEPoint:{
-            lat:13,
-            long:-93
-        }
     }
 ]
 

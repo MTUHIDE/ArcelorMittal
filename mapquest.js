@@ -44,10 +44,10 @@ function initSearch(){
 	if(urlp.has('type')){
 		index = types.indexOf(urlp.get('type'))
 	}
-	document.getElementById("searchType").innerHTML += '<option value='+types[index]+'>'+types[index]+'</option>'
+	document.getElementById("searchType").innerHTML += '<option class="select-items" value='+types[index]+'>'+types[index]+'</option>'
 	for(let i = 0; i < types.length; i++){
 		if(i != index){
-			document.getElementById("searchType").innerHTML += '<option value='+types[i]+'>'+types[i]+'</option>'
+			document.getElementById("searchType").innerHTML += '<option class="select-items" value='+types[i]+'>'+types[i]+'</option>'
 		}
 	}
 	
@@ -55,10 +55,10 @@ function initSearch(){
 	if(urlp.has('field')){
 		index = fields.indexOf(urlp.get('field'))
 	}
-	document.getElementById("searchField").innerHTML += '<option value='+fields[index]+'>'+fields[index]+'</option>'
+	document.getElementById("searchField").innerHTML += '<option class="select-items" value='+fields[index]+'>'+fields[index]+'</option>'
 	for(let i = 0; i < fields.length; i++){
 		if(i != index){
-			document.getElementById("searchField").innerHTML += '<option value='+fields[i]+'>'+fields[i]+'</option>'
+			document.getElementById("searchField").innerHTML += '<option class="select-items" value='+fields[i]+'>'+fields[i]+'</option>'
 		}
 	}
 }
@@ -86,7 +86,7 @@ function loadkeys(){
 		for(let i = 0; i < urlKeysParsed.length; i++){
 			keys.push(urlKeysParsed[i])
 			nonSpace = urlKeysParsed[i].replace(" ", "+")
-			document.getElementById("keys").innerHTML += "<div style='display: inline-block; margin: 5px; background-color:lightblue; padding-left: 5px; padding-right: 5px; border-style: solid;'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + nonSpace + "') style='margin-right: -5px; margin-left: 10px; float: right; font-size: 11px'>&times</button></div>"
+			document.getElementById("keys").innerHTML += "<div class='keys'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + nonSpace + "') class='xbutton' >&times</button></div>"
 		}
 	}
 }
@@ -117,6 +117,9 @@ function reload(newKey){
 //add new keyword
 function addKeyWord(){
 	newKey = document.getElementById("search").value
+	if(newKey.length == 0){
+		return
+	}
 	keys.push(newKey)
 	reload(newKey)
 }
@@ -155,7 +158,7 @@ function setField(){
 function timesIn(value) {
     let count = 0;
     for (let i = 0; i < data.length; i++) {
-        if (data[i][0] == value) {
+        if (data[i][3].trim() == value) {
             count++;
         }
     }
@@ -219,16 +222,17 @@ function initialMapLoad(data){
         layers: L.mapquest.tileLayer('map'),
         zoom: 4
     });
+	
     layer = L.layerGroup().addTo(map);
 	navigationControl = L.mapquest.navigationControl();
 	map.addControl(navigationControl);
     
     for (let i = 0; i < data.length; i++) {
         // Stores each item in current customer array in its own variable
-        let name = data[i][3];
-        let customer = data[i][0];
-        let city = data[i][1];
-		let state = data[i][2];
+        let name = data[i][3].trim();
+        let customer = data[i][0].trim();
+        let city = data[i][1].trim();
+		let state = data[i][2].trim();
 		//latitdude = data[i][7];
 		//longtitude = data[i][8];
         let country = "United States";

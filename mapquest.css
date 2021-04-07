@@ -49,3 +49,60 @@
 .subpeople:hover {
 	cursor: pointer;
 }
+
+.drop {
+	background-color: EEEEFF;
+	border-style: solid;
+	border-radius: 4px;
+	border-width: 1px;
+}
+
+.drop:hover {
+	background-color: F9F9F9;
+}
+
+.select-items {
+	background-color: F9F9F9;
+}
+
+.keys {
+	display: inline-block;
+	margin: 5px;
+	background-color: E0E0F0;
+	font-size: 14px;
+	padding: 4px;
+	padding-left: 5px;
+	padding-right: 5px;
+	border-style: groove;
+	border-radius: 4px;
+}
+
+.sbutton {
+	background-color: EEEEFF;
+	border-style: solid;
+	border-radius: 4px;
+	border-width: 1px;
+}
+
+.sbutton:hover {
+	background-color: F9F9F9;
+}
+
+.xbutton {
+	margin-right: -5px;
+	margin-top: -5px;
+	border: none;
+	background: none;
+	margin-left: 5px;
+	float: right;
+	font-size: 18px;
+}
+
+.xbutton:hover {
+	color: red;
+}
+
+.xbutton:focus {
+	border: none;
+	outline: 0;
+}

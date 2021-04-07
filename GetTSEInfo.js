@@ -28,7 +28,6 @@ function getCustomerList(){
         method:'get',
         url: GetCustomerSummaryURL,
         success: function(z){
-            console.log(z);
             data = JSON.parse(z);
             initialMapLoad(data);
         }

@@ -1,6 +1,6 @@
 <html>
 	<head>
-		<title>A MapQuest map!</title>
+		<title>TSE Map</title>
 		<script src="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.js"></script>
 		<link type="text/css" rel="stylesheet" href="https://api.mqcdn.com/sdk/mapquest-js/v1.3.2/mapquest.css" />
 		<script
@@ -33,29 +33,30 @@
 				<div id="locationFilter"></div>
 				<label for="locations">Select a location</label>
 				<select
+					class="drop"
 					name="locations"
 					id="locationSelect"
 					onchange="filter(this.options[this.selectedIndex].value, data)"
 				>
-					<option value="All">All</option>
-					<option value="East">East</option>
-					<option value="Midwest">West</option>
-					<option value="Southern">South</option>
-					<option value="Western">West</option>
+					<option class="select-items" value="All">All</option>
+					<option class="select-items" value="East">East</option>
+					<option class="select-items" value="Midwest">West</option>
+					<option class="select-items" value="Southern">South</option>
+					<option class="select-items" value="Western">West</option>
 				</select>
 				<div style="padding: 10px">
-					<input type="text" id="search" name="search" />
-					<button type="button" onclick="addKeyWord()">Add</button>
-					<select name="searchType" id="searchType" onchange="setType()"></select>
-					<select name="searchField" id="searchField" onchange="setField()"></select>
-					<button type="button" onclick="reset()">Clear</button>
-					<button onclick="javascript:window.print()">Print</button>
+					<input type="text" id="search" placeholder="Search keys here" style="border-radius: 3px; background-color: #f7f7ff;" name="search" />
+					<button type="button" class="sbutton" onclick="addKeyWord()">Add</button>
+					<select name="searchType" id="searchType" class="drop" onchange="setType()"></select>
+					<select name="searchField" id="searchField" class="drop" onchange="setField()"></select>
+					<button type="button" class="sbutton" onclick="reset()">Clear</button>
+					<button class="sbutton"onclick="javascript:window.print()">Print</button>
 				</div>
 				<div id="people"></div>
 				<div id="customers" class="hidden"></div>
-			</div>
-			<div style="padding-bottom: 10px" id="keys"></div>
-			<div id="map"></div>
+				<div style="padding-bottom: 10px" id="keys"></div>
+			<div id="map" style="height: 82%"></div>
+			</div>		
 		</div>
 	</body>
 </html>

@@ -65,6 +65,7 @@ function initSearch(){
 
 function removeKey(key){
 	key = key.replace("+", " ")
+	key = key.replace("%27", "'")
 	var newParams = ""
 	for(var i = 0; i < keys.length; i++){
 		if(keys[i] != key){
@@ -73,7 +74,11 @@ function removeKey(key){
 	}
 	newParams = newParams.substring(0, newParams.length-1)
 	const urlp = new URLSearchParams(window.location.search)
-	var search = urlp.set('search', newParams)
+	if(newParams.length>0){
+		var search = urlp.set('search', newParams)
+	} else {
+		urlp.delete('search')
+	}
 	window.location.href = "?" + urlp.toString()
 }
 
@@ -86,6 +91,8 @@ function loadkeys(){
 		for(let i = 0; i < urlKeysParsed.length; i++){
 			keys.push(urlKeysParsed[i])
 			nonSpace = urlKeysParsed[i].replace(" ", "+")
+			nonSpace = nonSpace.replace("'", "%27")
+			console.log(nonSpace)
 			document.getElementById("keys").innerHTML += "<div class='keys'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + nonSpace + "') class='xbutton' >&times</button></div>"
 		}
 	}
@@ -120,8 +127,10 @@ function addKeyWord(){
 	if(newKey.length == 0){
 		return
 	}
-	keys.push(newKey)
-	reload(newKey)
+	if(!keys.includes(newKey)){
+		keys.push(newKey)
+		reload(newKey)
+	}
 }
 
 //sets the search type
@@ -205,8 +214,10 @@ function centerMap(lat, lng) {
 // Adds a search for the name of clicked TSE
 function addTSEFilter(index) {
 	tseName = nameUniqueOrdered[index][0];
-	keys.push(tseName)
-	reload(tseName)
+	if(!keys.includes(tseName)){
+		keys.push(tseName)
+		reload(tseName)
+	}
 }
 
 //Performs the inital load of the map when loading the site
@@ -267,9 +278,9 @@ function initialMapLoad(data){
 		} else {
 			pass = false
 			for(let i = 0; i < keys.length; i++){
-				searchKey = keys[i].toLowerCase()
+				searchKey = keys[i].toLowerCase().trim()
 				if(field == 'all'){
-					if((name.toLowerCase().includes(searchKey) || customer.toLowerCase().includes(searchKey) || city.toLowerCase().includes(searchKey) || state.toLowerCase().includes(searchKey) || country.toLowerCase().includes(searchKey))){
+					if((name.toLowerCase().trim().includes(searchKey) || customer.toLowerCase().trim().includes(searchKey) || city.toLowerCase().trim().includes(searchKey) || state.toLowerCase().trim().includes(searchKey) || country.toLowerCase().trim().includes(searchKey))){
 						pass = true
 					}
 				} else {

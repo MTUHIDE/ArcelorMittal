@@ -361,6 +361,7 @@ function initialMapLoad(data){
     }
 	if(nameUnique.length == 0){
 		document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
+		document.getElementById("customers").innerHTML += '<div class="subcustomer" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
 	} else {
 		for (let i = 0; i < nameUniqueOrdered.length; i++) {
 			document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + i + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
@@ -380,6 +381,9 @@ function loadIntoMap(people){
     ];
     layer.clearLayers();
     layer = L.layerGroup().addTo(map);
+	document.getElementById("people").innerHTML = '';
+	document.getElementById("customers").innerHTML = '';
+
     for (let i = 0; i < people.length; i++) {
         let name = data[i][3];
         let customer = data[i][0];
@@ -433,9 +437,14 @@ function loadIntoMap(people){
     }
 
     // Add all employees and their customer count to the info bar on the left of the map
-    for (let i = 0; i < nameUniqueOrdered.length; i++) {
-        document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + nameUniqueOrdered[i][0] + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
-    }
+	if(typeof nameUnique[0] == 'undefined'){
+		document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
+		document.getElementById("customers").innerHTML += '<div class="subcustomer" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
+	} else {
+    	for (let i = 0; i < nameUniqueOrdered.length; i++) {
+       		document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + nameUniqueOrdered[i][0] + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
+    	}
+	}
 }
 
 document.addEventListener("DOMContentLoaded", function() {  getCustomerList()});

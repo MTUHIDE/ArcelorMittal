@@ -29,7 +29,6 @@ This css is used to hide anything with the "no-print" tag when the user prints.
 	/* The next two lines make the MapQuest map take up the full page */
 	#map {
 	height: 100%;
-	width: 100%;
 	}
 	
 	/* Any other CSS else we want to change during a print can be put here */

@@ -92,7 +92,6 @@ function loadkeys(){
 			keys.push(urlKeysParsed[i])
 			nonSpace = urlKeysParsed[i].replace(" ", "+")
 			nonSpace = nonSpace.replace("'", "%27")
-			console.log(nonSpace)
 			document.getElementById("keys").innerHTML += "<div class='keys'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + nonSpace + "') class='xbutton' >&times</button></div>"
 		}
 	}
@@ -244,10 +243,9 @@ function initialMapLoad(data){
         let customer = data[i][0].trim();
         let city = data[i][1].trim();
 		let state = data[i][2].trim();
-		//latitdude = data[i][7];
-		//longtitude = data[i][8];
+		latitdude = data[i][6];
+		longtitude = data[i][7];
         let country = "United States";
-		
 		const urlp = new URLSearchParams(window.location.search)
 		var type = 'and'
 		var field = 'all'
@@ -296,12 +294,12 @@ function initialMapLoad(data){
 				nameUnique.push(name);
 			}
 			// Fetches location data from MapQuest
-			if(data[i][7] === null || data[i][8]===null){ //If we don't have location coordinates call getCoor
+			if(latitdude === null || longtitude===null){ //If we don't have location coordinates call getCoor
 			getCoor(city, state, name, customer).then(fromData => {
 				let latLng = fromData[0].results[0].locations[0].displayLatLng;
-				data[i][7] = latLng.lat;
-				data[i][8] = latLng.lng;
-				let marker = L.marker([data[i][7], data[i][8]], {
+				latitdude = latLng.lat;
+				longtitude = latLng.lng;
+				let marker = L.marker([latitdude, longtitude], {
 					text: name,
 					subtext: city,
 					position: 'down',
@@ -320,9 +318,9 @@ function initialMapLoad(data){
 				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
 			});
 		} else {//if we have coordinates use our stored coordinates
-			data[i][7]= parseFloat(data[i][7]);
-			data[i][8] = parseFloat(data[i][8]);
-			let marker = L.marker([data[i][7], data[i][8]], {
+			latitdude= parseFloat(latitdude);
+			longtitude = parseFloat(longtitude);
+			let marker = L.marker([latitdude, longtitude], {
 				text: name,
 				subtext: city,
 				position: 'down',
@@ -338,7 +336,7 @@ function initialMapLoad(data){
 			 marker.bindPopup(popupContent).openPopup();
 
 			 // Adds clickable customer entry in leftbar list
-			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + data[i][7] + ', ' + data[i][8] + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
+			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitdude + ', ' + longtitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
 
 		}
 		}

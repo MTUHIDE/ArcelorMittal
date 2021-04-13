@@ -307,7 +307,7 @@ function initialMapLoad(data){
 					position: 'down',
 					type: 'marker',
 					icon: L.mapquest.icons.marker({
-						primaryColor: strToColor(name),
+						primaryColor: strToColor(name.trim()),
 						secondaryColor: '#000000',
 						size: 'sm'
 					})
@@ -317,7 +317,7 @@ function initialMapLoad(data){
 				 marker.bindPopup(popupContent).openPopup();
 
 				 // Adds clickable customer entry in leftbar list
-				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + data[i][0] + '</div>';
+				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name.trim()) + ';">' + data[i][0] + '</div>';
 			});
 		} else {//if we have coordinates use our stored coordinates
 			data[i][7]= parseFloat(data[i][7]);
@@ -328,7 +328,7 @@ function initialMapLoad(data){
 				position: 'down',
 				type: 'marker',
 				icon: L.mapquest.icons.marker({
-					primaryColor: strToColor(name),
+					primaryColor: strToColor(name.trim()),
 					secondaryColor: '#000000',
 					size: 'sm'
 				})
@@ -338,8 +338,7 @@ function initialMapLoad(data){
 			 marker.bindPopup(popupContent).openPopup();
 
 			 // Adds clickable customer entry in leftbar list
-			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + data[i][7] + ', ' + data[i][8] + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + data[i][0] + '</div>';
-
+			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + data[i][7] + ', ' + data[i][8] + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name.trim()) + ';">' + data[i][0] + '</div>';
 		}
 		}
     }

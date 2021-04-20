@@ -10,8 +10,14 @@ var map;
 var featureGroup;
 var layer;
 var keys = [];
-var types = ['and', 'or']
-var fields = ['all', 'name', 'customer', 'city', 'state', 'country']
+var types = ['and', 'or'];
+var fields = ['all', 'name', 'customer', 'city', 'state', 'country'];
+
+let customerMarkers = [];
+let displayCustomers = true;
+let displayTSEs = false;
+let customerHTML = '';
+letTSEHTML = '';
 
 // Switches from Customers tab to TSEs tab
 const switchToTSE = () => {
@@ -27,6 +33,25 @@ const switchToCustomers = () => {
 	document.getElementById("customers").classList.remove("hidden");
 	document.getElementById("tse-button").classList.remove("selected-tab");
 	document.getElementById("customer-button").classList.add("selected-tab");
+}
+
+// On check event for customers checkbox
+const checkCustomers = () => {
+	displayCustomers = document.getElementById("customerCheckbox").checked;
+
+	if(displayCustomers){
+		layer.addTo(map);
+		document.getElementById('customers').innerHTML = customerHTML;
+	} else {
+		map.removeLayer(layer);
+		customerHTML = document.getElementById('customers').innerHTML;
+		document.getElementById('customers').innerHTML = '';
+	}
+}
+
+// On check event for TSEs checkbox
+const checkTSEs = () => {
+	displayTSEs = document.getElementById("TSECheckbox").checked;
 }
 
 // Gets coordinates of given city/state
@@ -309,10 +334,13 @@ function initialMapLoad(data){
 						secondaryColor: '#000000',
 						size: 'sm'
 					})
-				}).addTo(layer);
+				})
+				
 				 // Assign a popup with customer's information to appear above customer's map marker on click
 				 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
 				 marker.bindPopup(popupContent).openPopup();
+
+				 customerMarkers.push(marker);
 
 				 // Adds clickable customer entry in leftbar list
 				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
@@ -330,10 +358,13 @@ function initialMapLoad(data){
 					secondaryColor: '#000000',
 					size: 'sm'
 				})
-			}).addTo(layer);
+			})
+
 			 // Assign a popup with customer's information to appear above customer's map marker on click
 			 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
 			 marker.bindPopup(popupContent).openPopup();
+
+			 customerMarkers.push(marker);
 
 			 // Adds clickable customer entry in leftbar list
 			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitdude + ', ' + longtitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
@@ -341,6 +372,12 @@ function initialMapLoad(data){
 		}
 		}
     }
+
+	if(displayCustomers){
+		customerMarkers.forEach(marker => {
+			marker.addTo(layer);
+		});
+	}
 	
 	nameUniqueOrdered.push([nameUnique[0], timesIn([nameUnique[0]])])
     for (let i = 1; i < nameUnique.length; i++) {

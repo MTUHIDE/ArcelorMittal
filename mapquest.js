@@ -283,8 +283,13 @@ function initialMapLoad(data){
         let customer = data[i][0].trim();
         let city = data[i][1].trim();
 		let state = data[i][2].trim();
+<<<<<<< HEAD
 		latitdude = parseFloat(data[i][6]) + parseFloat(noise(customer+name+city));
 		longtitude = parseFloat(data[i][7]) + parseFloat(noise(customer+name+state));
+=======
+		latitdude = data[i][6];
+		longtitude = data[i][7];
+>>>>>>> f0b98834937f128b4c356c84513ca8e19db28fb9
         let country = "United States";
 		const urlp = new URLSearchParams(window.location.search)
 		var type = 'and'
@@ -334,11 +339,19 @@ function initialMapLoad(data){
 				nameUnique.push(name);
 			}
 			// Fetches location data from MapQuest
+<<<<<<< HEAD
 			if(data[i][7] === null || data[i][8] === null){ //If we don't have location coordinates call getCoor
 				getCoor(city, state, name, customer).then(fromData => {
 				let latLng = fromData[0].results[0].locations[0].displayLatLng;
 				latitdude = latLng.lat
 				longtitude = latLng.lng
+=======
+			if(latitdude === null || longtitude===null){ //If we don't have location coordinates call getCoor
+			getCoor(city, state, name, customer).then(fromData => {
+				let latLng = fromData[0].results[0].locations[0].displayLatLng;
+				latitdude = latLng.lat;
+				longtitude = latLng.lng;
+>>>>>>> f0b98834937f128b4c356c84513ca8e19db28fb9
 				let marker = L.marker([latitdude, longtitude], {
 					text: name,
 					subtext: city,
@@ -361,6 +374,11 @@ function initialMapLoad(data){
 				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
 			});
 		} else {//if we have coordinates use our stored coordinates
+<<<<<<< HEAD
+=======
+			latitdude= parseFloat(latitdude);
+			longtitude = parseFloat(longtitude);
+>>>>>>> f0b98834937f128b4c356c84513ca8e19db28fb9
 			let marker = L.marker([latitdude, longtitude], {
 				text: name,
 				subtext: city,

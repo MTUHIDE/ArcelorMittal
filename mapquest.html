@@ -53,6 +53,12 @@
 					<button type="button" class="sbutton" onclick="reset()">Clear</button>
 					<button class="sbutton"onclick="javascript:window.print()">Print</button>
 				</div>
+				<div style="text-align: center;">
+					<input type="checkbox" id="customerCheckbox" checked="true" onclick="checkCustomers()">
+					<label for="customerCheckbox" style="padding-right: 30px;">Show customers</label>
+					<input type="checkbox" id="TSECheckbox" onclick="checkTSEs()">
+					<label for="TSECheckbox">Show TSEs</label>
+				</div>
 				<div id="people"></div>
 				<div id="customers" class="hidden"></div>
 				<div style="padding-bottom: 10px" id="keys"></div>

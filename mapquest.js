@@ -10,8 +10,14 @@ var map;
 var featureGroup;
 var layer;
 var keys = [];
-var types = ['and', 'or']
-var fields = ['all', 'name', 'customer', 'city', 'state', 'country']
+var types = ['and', 'or'];
+var fields = ['all', 'name', 'customer', 'city', 'state', 'country'];
+
+let customerMarkers = [];
+let displayCustomers = true;
+let displayTSEs = false;
+let customerHTML = '';
+letTSEHTML = '';
 
 // Switches from Customers tab to TSEs tab
 const switchToTSE = () => {
@@ -29,11 +35,33 @@ const switchToCustomers = () => {
 	document.getElementById("customer-button").classList.add("selected-tab");
 }
 
+// On check event for customers checkbox
+const checkCustomers = () => {
+	displayCustomers = document.getElementById("customerCheckbox").checked;
+
+	if(displayCustomers){
+		layer.addTo(map);
+		document.getElementById('customers').innerHTML = customerHTML;
+	} else {
+		map.removeLayer(layer);
+		customerHTML = document.getElementById('customers').innerHTML;
+		document.getElementById('customers').innerHTML = '';
+	}
+}
+
+// On check event for TSEs checkbox
+const checkTSEs = () => {
+	displayTSEs = document.getElementById("TSECheckbox").checked;
+}
+
 // Gets coordinates of given city/state
 // Returns MapQuest response, employee name, and customer name
 async function getCoor(city, state, name, customer) {
     let response = await fetch('https://www.mapquestapi.com/geocoding/v1/address?key=' + key + '&location=' + city + "," + state);
     let data = await response.json()
+	data.lat = parseFloat(data.lat) + parseFloat(noise(customer+name+city));
+	data.lng = parseFloat(data.lng) + parseFloat(noise(customer+name+state));
+	console.log(data.lat + data.lng)
     return [data, name, customer];
 }
 
@@ -92,7 +120,6 @@ function loadkeys(){
 			keys.push(urlKeysParsed[i])
 			nonSpace = urlKeysParsed[i].replace(" ", "+")
 			nonSpace = nonSpace.replace("'", "%27")
-			console.log(nonSpace)
 			document.getElementById("keys").innerHTML += "<div class='keys'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + nonSpace + "') class='xbutton' >&times</button></div>"
 		}
 	}
@@ -220,6 +247,18 @@ function addTSEFilter(index) {
 	}
 }
 
+function noise(str){
+	num = 0.0;
+	for(var i = 0; i < str.length; i++){
+		num += str.charCodeAt(0) * 10000.0;
+	}
+	one = 100000.0;
+	two = 5000000.0;
+	three = one/two/2; 
+	noiseNum = (num % one) / two - three;
+	return noiseNum;
+}
+
 //Performs the inital load of the map when loading the site
 function initialMapLoad(data){
 	loadkeys()
@@ -244,10 +283,9 @@ function initialMapLoad(data){
         let customer = data[i][0].trim();
         let city = data[i][1].trim();
 		let state = data[i][2].trim();
-		//latitdude = data[i][7];
-		//longtitude = data[i][8];
+		latitdude = parseFloat(data[i][6]) + parseFloat(noise(customer+name+city));
+		longtitude = parseFloat(data[i][7]) + parseFloat(noise(customer+name+state));
         let country = "United States";
-		
 		const urlp = new URLSearchParams(window.location.search)
 		var type = 'and'
 		var field = 'all'
@@ -296,56 +334,63 @@ function initialMapLoad(data){
 				nameUnique.push(name);
 			}
 			// Fetches location data from MapQuest
-			if(data[i][7] === null || data[i][8]===null){ //If we don't have location coordinates call getCoor
-			getCoor(city, state, name, customer).then(fromData => {
+			if(data[i][7] === null || data[i][8] === null){ //If we don't have location coordinates call getCoor
+				getCoor(city, state, name, customer).then(fromData => {
 				let latLng = fromData[0].results[0].locations[0].displayLatLng;
-				data[i][7] = latLng.lat;
-				data[i][8] = latLng.lng;
-				let marker = L.marker([data[i][7], data[i][8]], {
+				latitdude = latLng.lat
+				longtitude = latLng.lng
+				let marker = L.marker([latitdude, longtitude], {
 					text: name,
 					subtext: city,
 					position: 'down',
 					type: 'marker',
 					icon: L.mapquest.icons.marker({
-						primaryColor: strToColor(name.trim()),
+						primaryColor: strToColor(name),
 						secondaryColor: '#000000',
 						size: 'sm'
 					})
-				}).addTo(layer);
+				})
+				
 				 // Assign a popup with customer's information to appear above customer's map marker on click
 				 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
 				 marker.bindPopup(popupContent).openPopup();
 
-				 // Adds clickable customer entry in leftbar list
-				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name.trim()) + ';">' + data[i][0] + '</div>';
+				 customerMarkers.push(marker);
 
+				 // Adds clickable customer entry in leftbar list
 				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
 			});
 		} else {//if we have coordinates use our stored coordinates
-			data[i][7]= parseFloat(data[i][7]);
-			data[i][8] = parseFloat(data[i][8]);
-			let marker = L.marker([data[i][7], data[i][8]], {
+			let marker = L.marker([latitdude, longtitude], {
 				text: name,
 				subtext: city,
 				position: 'down',
 				type: 'marker',
 				icon: L.mapquest.icons.marker({
-					primaryColor: strToColor(name.trim()),
+					primaryColor: strToColor(name),
 					secondaryColor: '#000000',
 					size: 'sm'
 				})
-			}).addTo(layer);
+			})
+
 			 // Assign a popup with customer's information to appear above customer's map marker on click
 			 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
 			 marker.bindPopup(popupContent).openPopup();
 
-			 // Adds clickable customer entry in leftbar list
-			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + data[i][7] + ', ' + data[i][8] + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name.trim()) + ';">' + data[i][0] + '</div>';
+			 customerMarkers.push(marker);
 
-			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + data[i][7] + ', ' + data[i][8] + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
+			 // Adds clickable customer entry in leftbar list
+			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitdude + ', ' + longtitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
+
 		}
 		}
     }
+
+	if(displayCustomers){
+		customerMarkers.forEach(marker => {
+			marker.addTo(layer);
+		});
+	}
 	
 	nameUniqueOrdered.push([nameUnique[0], timesIn([nameUnique[0]])])
     for (let i = 1; i < nameUnique.length; i++) {
@@ -400,7 +445,7 @@ function loadIntoMap(people){
 
         getCoor(city, state, name, customer).then(fromData => {
             let latLng = fromData[0].results[0].locations[0].displayLatLng;
-
+			
             // Adds customer marker to map with returned info
             let marker = L.marker([latLng.lat, latLng.lng], {
                 text: fromData[1],

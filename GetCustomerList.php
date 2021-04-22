@@ -12,34 +12,19 @@ try{
     $conn = new PDO("mysql:host=$servername;port=3307; dbname=arcelormittal", $username,
     $password);
     $conn -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-
-    if(isset($_GET['t'])){
-        getTSEInfo($_GET['t'], $conn);
-    } else {
-        getAllInfo($conn);
-    }
+    getAllInfo($conn);
 } catch (PDOException $e){
     echo "Connection failed:" . $e->getMessage();
 }
 
-function getTSEInfo($TESName, PDO $conn){
-    try{
-        $result = array();
-        $getInfo = $conn->prepare("Select * from CustomerList where TSE = ?");
-        $getInfo->execute([$TESName]);
-        //Fetch Result
-        $customers = $getInfo -> fetchAll();
-        //Return json list with results
-        array_push($result, $customers);
-        echo json_encode($result);
-    } catch (PDOException $e){
-        echo "Error: " . $e->getMessage();
-    }
-    $conn =null;
-}
 function getAllInfo(PDO $conn){
     try{
-    $getInfo = $conn->prepare("Select * from CustomerList");
+    $getInfo = $conn->prepare("SELECT DISTINCT a.Customer, a.City, a.St, a.TSE, a.Region, a.ID, b.LATITUDE, b.LONGITUDE
+    FROM CustomerList AS a
+    LEFT JOIN us_cities AS b
+    ON LOWER(a.St) = LOWER(b.STATE_CODE)
+    AND LOWER(a.City) = LOWER(b.CITY)
+    GROUP BY a.Customer, a.St, a.City");
         $getInfo->execute();
         //Fetch Result
         $customers = $getInfo -> fetchAll();

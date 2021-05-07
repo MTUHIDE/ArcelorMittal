@@ -1,0 +1,50 @@
+<html>
+    <head>
+        <title>Login</title>
+        <script
+			src="https://code.jquery.com/jquery-3.5.1.min.js"
+			integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+			crossorigin="anonymous"
+		></script>
+    </head>
+    <body>
+        <script>
+            function Login(){
+                let Formdata = new FormData();
+                let username = document.getElementById("username").value;
+                let password = document.getElementById("password").value;
+                Formdata.append("username", username);
+                Formdata.append("password", password);
+                $.ajax({
+                    method: "Post",
+                    url: "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/Login.php",
+                    data: Formdata,
+                    cache: false,
+                    processData: false,
+                    contentType: false,
+                    success: function(x){
+                        let data = JSON.parse(x);
+                        let u = data.username;
+                        let p = data.password;
+                        if(u == username){
+                            //Redirect to main page
+                            window.location.href="https://classdb.it.mtu.edu/cs3141/ArcelorMittal/mapquest.html?u="+u+"&p="+p;
+                        } else{ //Invalid
+                            alert("Username or Password is incorrect");
+                        }
+                    }
+                });
+            }
+
+        </script>
+
+        <div id="loginInput">
+            <input type="text" id="username" required=true><br><br>
+            <input type="password" id="password" required = true><br><br>
+            <input type="submit" id="login" value="Login" onclick="Login()">
+        </div>
+
+
+    </body>
+
+</html>

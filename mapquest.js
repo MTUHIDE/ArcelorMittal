@@ -1,5 +1,6 @@
-// Temporary mock customer data
+// Hold customer data
 var data;
+var TSEdata;//TSE Location data
 
 // MapQuest API key
 const key = "Ao6wUe2zwTFeXVlE6kSxwDxVwM1My2Fu";
@@ -8,12 +9,14 @@ var nameUnique = [];
 var nameUniqueOrdered = [];
 var map;
 var featureGroup;
-var layer;
+var TSElayer;
+var Customerlayer;
 var keys = [];
 var types = ['and', 'or'];
 var fields = ['all', 'name', 'customer', 'city', 'state', 'country'];
 
 let customerMarkers = [];
+let TSEMarkers =[];
 let displayCustomers = true;
 let displayTSEs = false;
 let customerHTML = '';
@@ -40,10 +43,10 @@ const checkCustomers = () => {
 	displayCustomers = document.getElementById("customerCheckbox").checked;
 
 	if(displayCustomers){
-		layer.addTo(map);
+		Customerlayer.addTo(map);
 		document.getElementById('customers').innerHTML = customerHTML;
 	} else {
-		map.removeLayer(layer);
+		map.removeLayer(Customerlayer);
 		customerHTML = document.getElementById('customers').innerHTML;
 		document.getElementById('customers').innerHTML = '';
 	}
@@ -61,7 +64,6 @@ async function getCoor(city, state, name, customer) {
     let data = await response.json()
 	data.lat = parseFloat(data.lat) + parseFloat(noise(customer+name+city));
 	data.lng = parseFloat(data.lng) + parseFloat(noise(customer+name+state));
-	console.log(data.lat + data.lng)
     return [data, name, customer];
 }
 
@@ -261,9 +263,9 @@ function noise(str){
 
 //Performs the inital load of the map when loading the site
 function initialMapLoad(data){
-	loadkeys()
-    initSearch()
-
+	loadkeys();
+    initSearch();
+	getTSEList();
     L.mapquest.key = key;
 
     // 'map' refers to a <div> element with the ID map
@@ -273,7 +275,7 @@ function initialMapLoad(data){
         zoom: 4
     });
 	
-    layer = L.layerGroup().addTo(map);
+    Customerlayer = L.layerGroup().addTo(map);
 	navigationControl = L.mapquest.navigationControl();
 	map.addControl(navigationControl);
     
@@ -339,6 +341,8 @@ function initialMapLoad(data){
 				let latLng = fromData[0].results[0].locations[0].displayLatLng;
 				latitdude = latLng.lat;
 				longtitude = latLng.lng;
+				data[i][6] = latitdude;
+				data[i][7] = longtitude;
 				let marker = L.marker([latitdude, longtitude], {
 					text: name,
 					subtext: city,
@@ -390,7 +394,7 @@ function initialMapLoad(data){
 
 	if(displayCustomers){
 		customerMarkers.forEach(marker => {
-			marker.addTo(layer);
+			marker.addTo(Customerlayer);
 		});
 	}
 	
@@ -425,53 +429,50 @@ function initialMapLoad(data){
 //Loads results of filter into the map
 function loadIntoMap(people){
     //Reset values
-    nameUnique = [people[0]];
-    nameUniqueOrdered = [
-     [nameUnique[0], timesIn(nameUnique[0])]
-    ];
-    layer.clearLayers();
-    layer = L.layerGroup().addTo(map);
+    nameUnique.length = 0;
+    nameUniqueOrdered.length = 0;
+    Customerlayer.clearLayers();
+    Customerlayer = L.layerGroup().addTo(map);
 	document.getElementById("people").innerHTML = '';
 	document.getElementById("customers").innerHTML = '';
 
     for (let i = 0; i < people.length; i++) {
-        let name = data[i][3];
-        let customer = data[i][0];
-        let city = data[i][1];
-        let state = data[i][2];
+        let name = people[i][3].trim();
+        let customer = people[i][0].trim();
+        let city = people[i][1].trim();
+		let state = people[i][2].trim();
+		let latitdude = people[i][6];
+		let longtitude = people[i][7];
         let country = "United States";
 
         if (!nameUnique.includes(name)) {
             nameUnique.push(name);
         }
 
-        getCoor(city, state, name, customer).then(fromData => {
-            let latLng = fromData[0].results[0].locations[0].displayLatLng;
-			
             // Adds customer marker to map with returned info
-            let marker = L.marker([latLng.lat, latLng.lng], {
-                text: fromData[1],
-                subtext: fromData[2],
+            let marker = L.marker([latitdude, longtitude], {
+                text: name,
+                subtext: city,
                 position: 'down',
                 type: 'marker',
                 icon: L.mapquest.icons.marker({
-                    primaryColor: strToColor(fromData[1]),
+                    primaryColor: strToColor(name),
                     secondaryColor: '#000000',
                     size: 'sm'
                 })
-            }).addTo(layer);
+            }).addTo(Customerlayer);
 
              // Assign a popup with customer's information to appear above customer's map marker on click
              let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
              marker.bindPopup(popupContent).openPopup();
 
 			 // Adds clickable customer entry in leftbar list
-			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
-        });
+			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitdude + ', ' + longtitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
     }
 
     // Sorts nameUnique into nameUniqueOrdered for printing in alphabetical order
-    for (let i = 1; i < nameUnique.length; i++) {
+	nameUniqueOrdered.push([nameUnique[0], timesIn([nameUnique[0]])]);
+	for (let i = 1; i < nameUnique.length; i++) {
         let count = timesIn(nameUnique[i]);
 
         for (let j = 0; j < nameUniqueOrdered.length; j++) {
@@ -487,14 +488,43 @@ function loadIntoMap(people){
     }
 
     // Add all employees and their customer count to the info bar on the left of the map
-	if(typeof nameUnique[0] == 'undefined'){
+	if(nameUnique.length == 0){
 		document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
 		document.getElementById("customers").innerHTML += '<div class="subcustomer" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
 	} else {
     	for (let i = 0; i < nameUniqueOrdered.length; i++) {
-       		document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + nameUniqueOrdered[i][0] + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
-    	}
+			document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + i + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';    	
+		}
 	}
 }
 
-document.addEventListener("DOMContentLoaded", function() {  getCustomerList()});
+document.addEventListener("DOMContentLoaded", function() { 
+	let url = new URL(decodeURI(location.href));//Get url
+	if( url.searchParams.get('u') != null || url.searchParams.get('p') != null){
+		let Formdata = new FormData();
+		let username = url.searchParams.get('u');
+		let password = url.searchParams.get('p');
+		Formdata.append("username", username);
+		Formdata.append("password", password);
+		$.ajax({
+			method: "Post",
+			url: "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/Login.php",
+			data: Formdata,
+			cache: false,
+			processData: false,
+			contentType: false,
+			success: function(x){
+				let data = JSON.parse(x);
+				let u = data.username;
+				let p = data.password;
+				if(x == "false"){//Redirect to login
+					window.location.href = "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/login.html";
+				} else {
+					getCustomerList();
+				}
+			}
+		});
+	} else {
+		window.location.href = "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/login.html";
+	}
+});

@@ -36,4 +36,4 @@ function getAllInfo(PDO $conn){
     $conn =null;
 }
 
-
+?>

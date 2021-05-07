@@ -2,101 +2,23 @@
 This js file is used to provide location filter functionality
 */
 
-boundingBoxes=[
-    {
-        Location: "NorthEast",
-        NWPoint:{
-            lat: 48,
-            long: -80
-        },
-        SEPoint:{
-            lat:37,
-            long:-66
-        }
-    },
-    {
-        Location: "Midwest",
-        NWPoint:{
-            lat: 49,
-            long: -117
-        },
-        SEPoint:{
-            lat:36,
-            long:-81
-        }
-    },
-    {
-        Location: "Southern",
-        NWPoint:{
-            lat: 36,
-            long: -116
-        },
-        SEPoint:{
-            lat:24,
-            long:-75
-        }
-    },
-    {
-        Location: "Western",
-        NWPoint:{
-            lat: 49,
-            long: -125
-        },
-        SEPoint:{
-            lat:32,
-            long:-114
-        }
-    }
-]
-
 var filteredPeople = [];
 async function filterPeople(selectedReigon, data){
-    filteredPeople = [];
+    filteredPeople.length = 0;
     for(i = 0; i < data.length; i++){
-        //Get persons details
-        let name = data[i][3];
-        let customer = data[i][0];
-        let city = data[i][1];
-        let state = data[i][2];
-        let country = "United States";
         let reigon = data[i][4];
         if(reigon == selectedReigon){
             filteredPeople.push(data[i]);
         }
-        
-        /*await getCoor(city, state, name, customer).then( result => {
-            //Check to see if the person is within the bounding box for the selected location
-            let latLng = result[0].results[0].locations[0].displayLatLng;
-            let latitude = latLng.lat;
-            let longitude = latLng.lng;
-            if((boundingBoxes[box].NWPoint.lat > latitude  && latitude > boundingBoxes[box].SEPoint.lat) && (boundingBoxes[box].NWPoint.long < longitude && longitude < boundingBoxes[box].SEPoint.long)){
-                filteredPeople.push(data[i]);
-            }
-        });   */
     }
 }
 
 
 function filter(location, data){
-    let box;
-    /*for(i=0; i < boundingBoxes.length; i++){
-        if(boundingBoxes[i].Location == location){
-        box = i;
-        console.log(box);
-        break;
-        }
-    }*/
     if(location == "All"){
-        loadIntoMap(data);
-        return;
+        window.location.reload();
     }
     filterPeople(location,data);
-    document.getElementById("people").innerHTML = "<div><p>Filtering....</p></div>"
-   /* filterPeople(box,data).then( results => {
-        console.log(filteredPeople);
-        document.getElementById("people").innerHTML = " ";
-        loadIntoMap(filteredPeople);//Load filtered people into map
-    });*/
     document.getElementById("people").innerHTML= " ";
     document.getElementById("customers").innerHTML = " ";
     loadIntoMap(filteredPeople);   

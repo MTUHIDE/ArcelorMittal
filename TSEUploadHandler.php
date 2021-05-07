@@ -38,7 +38,7 @@ function ReadData($conn,$fileName){
 if( $xlsx = SimpleXLSX::parse('uploads/'.$fileName)){
     //Remove current data in DB
     $insertData = $conn->prepare("SET SQL_SAFE_UPDATES=0;
-    Delete from CustomerList where Latitude is Null;
+    Delete from TSELocations where Latitude is Null;
     SET SQL_SAFE_UPDATES=1;");
     $insertData->execute();
 
@@ -55,15 +55,13 @@ if( $xlsx = SimpleXLSX::parse('uploads/'.$fileName)){
             }
         //Insert the row into the database
         /* Values in array and their corresponding data
-        * 0 = Customer
+        * 0 = TSE
         * 1 = City
         * 2 = State
-        * 3 = TSE
-        * 4 = Reigon
         */ 
         //insert row into database
             try{
-                $insertData = $conn->prepare("Insert CustomerList (Customer, City, St, TSE, Region) values (?,?,?,?,?)");
+                $insertData = $conn->prepare("Insert INTO TSELocations (TSE, City, State) values (?,?,?);");
                 $insertData->execute($data);
             } catch(PDOException $e){
                 echo "Error".$e->getMessage();

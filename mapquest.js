@@ -20,7 +20,6 @@ let TSEMarkers =[];
 let displayCustomers = true;
 let displayTSEs = false;
 let customerHTML = '';
-letTSEHTML = '';
 
 // Switches from Customers tab to TSEs tab
 const switchToTSE = () => {
@@ -55,6 +54,12 @@ const checkCustomers = () => {
 // On check event for TSEs checkbox
 const checkTSEs = () => {
 	displayTSEs = document.getElementById("TSECheckbox").checked;
+
+	if(displayTSEs){
+		TSElayer.addTo(map);
+	} else {
+		map.removeLayer(TSElayer);
+	}
 }
 
 // Gets coordinates of given city/state
@@ -392,11 +397,9 @@ function initialMapLoad(data){
 		}
     }
 
-	if(displayCustomers){
-		customerMarkers.forEach(marker => {
-			marker.addTo(Customerlayer);
-		});
-	}
+	customerMarkers.forEach(marker => {
+		marker.addTo(Customerlayer);
+	});
 	
 	nameUniqueOrdered.push([nameUnique[0], timesIn([nameUnique[0]])])
     for (let i = 1; i < nameUnique.length; i++) {

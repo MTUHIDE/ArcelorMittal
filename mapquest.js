@@ -7,6 +7,7 @@ const key = "Ao6wUe2zwTFeXVlE6kSxwDxVwM1My2Fu";
 
 var nameUnique = [];
 var nameUniqueOrdered = [];
+let TSEOrdered = [];
 var map;
 var featureGroup;
 var TSElayer;
@@ -16,7 +17,7 @@ var types = ['and', 'or'];
 var fields = ['all', 'name', 'customer', 'city', 'state', 'country'];
 
 let customerMarkers = [];
-let TSEMarkers =[];
+let TSEMarkers = [];
 let displayCustomers = true;
 let displayTSEs = false;
 let customerHTML = '';
@@ -208,6 +209,21 @@ function timesIn(value) {
     return count;
 }
 
+// Counts the number of customers a given employee represents (new)
+function timesInNew(value) {
+	// change value format from LastName, FirstName to FirstName LastName
+	let arr = value.split(", ");
+	let name = arr[1] + " " + arr[0];
+
+    let count = 0;
+    for (let i = 0; i < data.length; i++) {
+        if (data[i][3].trim() == name) {
+            count++;
+        }
+    }
+    return count;
+}
+
 // Hashes a string to generate a unique color
 function strToColor(str) {
     let hash = 0;
@@ -246,11 +262,10 @@ function centerMap(lat, lng) {
 }
 
 // Adds a search for the name of clicked TSE
-function addTSEFilter(index) {
-	tseName = nameUniqueOrdered[index][0];
+function addTSEFilter(tseName) {
 	if(!keys.includes(tseName)){
-		keys.push(tseName)
-		reload(tseName)
+		keys.push(tseName);
+		reload(tseName);
 	}
 }
 
@@ -417,12 +432,12 @@ function initialMapLoad(data){
 
     }
 	if(nameUnique.length == 0){
-		document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
+		// document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
 		document.getElementById("customers").innerHTML += '<div class="subcustomer" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
 	} else {
-		for (let i = 0; i < nameUniqueOrdered.length; i++) {
-			document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + i + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
-		}
+		// for (let i = 0; i < nameUniqueOrdered.length; i++) {
+		// 	document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + i + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
+		// }
 	}
 }
 
@@ -492,12 +507,12 @@ function loadIntoMap(people){
 
     // Add all employees and their customer count to the info bar on the left of the map
 	if(nameUnique.length == 0){
-		document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
+		// document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
 		document.getElementById("customers").innerHTML += '<div class="subcustomer" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
 	} else {
-    	for (let i = 0; i < nameUniqueOrdered.length; i++) {
-			document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + i + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';    	
-		}
+    	// for (let i = 0; i < nameUniqueOrdered.length; i++) {
+		// 	document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + i + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';    	
+		// }
 	}
 }
 

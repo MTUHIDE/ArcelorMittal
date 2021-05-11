@@ -64,6 +64,17 @@ function loadTSEmap(d) {
 			}).bindPopup(popupContent).openPopup().addTo(TSElayer);
 		}
 	}
+
+	TSEdata.forEach(element => {
+		let arr = element[0].split(", ");
+		let name = arr[1] + " " + arr[0];
+		TSEOrdered.push(name);
+	});
+	TSEOrdered.sort();
+
+	for(let i = 0; i < TSEOrdered.length; i++){
+		document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(\'' + TSEOrdered[i] + '\')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(TSEOrdered[i]) + ';">' + TSEOrdered[i] + '<span style="float: right">(' + timesIn(TSEOrdered[i]) + ')</span></div>';
+	}
 }
 
 function getCustomerList() {

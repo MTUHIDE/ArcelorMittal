@@ -1,23 +1,25 @@
 // Hold customer data
-var data;
-var TSEdata;//TSE Location data
+let data;
+//TSE Location data
+let TSEdata;
 
 // MapQuest API key
 const key = "Ao6wUe2zwTFeXVlE6kSxwDxVwM1My2Fu";
 
-var nameUnique = [];
-var nameUniqueOrdered = [];
+let nameUnique = [];
+let nameUniqueOrdered = [];
 let TSEOrdered = [];
-var map;
-var featureGroup;
-var TSElayer;
-var Customerlayer;
-var keys = [];
-var types = ['and', 'or'];
-var fields = ['all', 'name', 'customer', 'city', 'state', 'country'];
-
 let customerMarkers = [];
 let TSEMarkers = [];
+let keys = [];
+let types = ['and', 'or'];
+let fields = ['all', 'name', 'customer', 'city', 'state', 'country'];
+
+let map;
+let TSElayer;
+let Customerlayer;
+
+let featureGroup;
 let displayCustomers = true;
 let displayTSEs = false;
 let customerHTML = '';
@@ -67,7 +69,7 @@ const checkTSEs = () => {
 // Returns MapQuest response, employee name, and customer name
 async function getCoor(city, state, name, customer) {
     let response = await fetch('https://www.mapquestapi.com/geocoding/v1/address?key=' + key + '&location=' + city + "," + state);
-    let data = await response.json()
+    let data = await response.json();
 	data.lat = parseFloat(data.lat) + parseFloat(noise(customer+name+city));
 	data.lng = parseFloat(data.lng) + parseFloat(noise(customer+name+state));
     return [data, name, customer];
@@ -75,127 +77,137 @@ async function getCoor(city, state, name, customer) {
 
 //initialize searchVariables in url and for dropdowns
 function initSearch(){
-	const urlp = new URLSearchParams(window.location.search)
-	var index = 0
+	const urlp = new URLSearchParams(window.location.search);
+	let index = 0;
+
 	if(urlp.has('type')){
-		index = types.indexOf(urlp.get('type'))
+		index = types.indexOf(urlp.get('type'));
 	}
-	document.getElementById("searchType").innerHTML += '<option class="select-items" value='+types[index]+'>'+types[index]+'</option>'
+	document.getElementById("searchType").innerHTML += '<option class="select-items" value='+types[index]+'>'+types[index]+'</option>';
 	for(let i = 0; i < types.length; i++){
 		if(i != index){
-			document.getElementById("searchType").innerHTML += '<option class="select-items" value='+types[i]+'>'+types[i]+'</option>'
+			document.getElementById("searchType").innerHTML += '<option class="select-items" value='+types[i]+'>'+types[i]+'</option>';
 		}
 	}
 	
-	index = 0
+	index = 0;
 	if(urlp.has('field')){
-		index = fields.indexOf(urlp.get('field'))
+		index = fields.indexOf(urlp.get('field'));
 	}
-	document.getElementById("searchField").innerHTML += '<option class="select-items" value='+fields[index]+'>'+fields[index]+'</option>'
+	document.getElementById("searchField").innerHTML += '<option class="select-items" value='+fields[index]+'>'+fields[index]+'</option>';
 	for(let i = 0; i < fields.length; i++){
 		if(i != index){
-			document.getElementById("searchField").innerHTML += '<option class="select-items" value='+fields[i]+'>'+fields[i]+'</option>'
+			document.getElementById("searchField").innerHTML += '<option class="select-items" value='+fields[i]+'>'+fields[i]+'</option>';
 		}
 	}
 }
 
 function removeKey(key){
-	key = key.replace("+", " ")
-	key = key.replace("%27", "'")
-	var newParams = ""
-	for(var i = 0; i < keys.length; i++){
+	key = key.replace("+", " ");
+	key = key.replace("%27", "'");
+	let newParams = "";
+
+	for(let i = 0; i < keys.length; i++){
 		if(keys[i] != key){
-			newParams += keys[i] + "*"
+			newParams += keys[i] + "*";
 		}	
 	}
-	newParams = newParams.substring(0, newParams.length-1)
-	const urlp = new URLSearchParams(window.location.search)
-	if(newParams.length>0){
-		var search = urlp.set('search', newParams)
+
+	newParams = newParams.substring(0, newParams.length-1);
+	const urlp = new URLSearchParams(window.location.search);
+
+	if(newParams.length > 0){
+		let search = urlp.set('search', newParams);
 	} else {
-		urlp.delete('search')
+		urlp.delete('search');
 	}
 	window.location.href = "?" + urlp.toString()
 }
 
 //load keys from url
 function loadkeys(){
-	const urlp = new URLSearchParams(window.location.search)
-	var search = urlp.get('search')
+	const urlp = new URLSearchParams(window.location.search);
+	let search = urlp.get('search');
+
 	if(search){
-		urlKeysParsed = search.split('*')
+		urlKeysParsed = search.split('*');
 		for(let i = 0; i < urlKeysParsed.length; i++){
-			keys.push(urlKeysParsed[i])
-			nonSpace = urlKeysParsed[i].replace(" ", "+")
-			nonSpace = nonSpace.replace("'", "%27")
-			document.getElementById("keys").innerHTML += "<div class='keys'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + nonSpace + "') class='xbutton' >&times</button></div>"
+			keys.push(urlKeysParsed[i]);
+			nonSpace = urlKeysParsed[i].replace(" ", "+");
+			nonSpace = nonSpace.replace("'", "%27");
+			document.getElementById("keys").innerHTML += "<div class='keys'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + nonSpace + "') class='xbutton' >&times</button></div>";
 		}
 	}
 }
 
 //resets all of the keywords 
 function reset(){
-	var url = window.location.href;
+	let url = window.location.href;
     url = url.split('?')[0];
-	location.href=url
+	location.href = url;
 }
 
 //reload page with new keywords
 function reload(newKey){
-	const urlp = new URLSearchParams(window.location.search)
+	const urlp = new URLSearchParams(window.location.search);
+
 	if(urlp.has('search')){
-		var search = urlp.get('search')
+		let search = urlp.get('search');
 		if(search.length != 0){
-			search += "*"
+			search += "*";
 		}
-		search += newKey
-		urlp.set('search', search)
+		search += newKey;
+		urlp.set('search', search);
 	} else {
-		urlp.append('search', newKey)
+		urlp.append('search', newKey);
 	}
-	window.location.href = "?" + urlp.toString()
+	window.location.href = "?" + urlp.toString();
 }
 
 //add new keyword
 function addKeyWord(){
-	newKey = document.getElementById("search").value
+	newKey = document.getElementById("search").value;
 	if(newKey.length == 0){
-		return
+		return;
 	}
 	if(!keys.includes(newKey)){
-		keys.push(newKey)
-		reload(newKey)
+		keys.push(newKey);
+		reload(newKey);
 	}
 }
 
 //sets the search type
 function setType(){
-	newType = document.getElementById("searchType").value
-	const urlp = new URLSearchParams(window.location.search)
+	newType = document.getElementById("searchType").value;
+	const urlp = new URLSearchParams(window.location.search);
+
 	if(urlp.has('type')){
-		urlp.set('type', newType)
+		urlp.set('type', newType);
 	} else {
-		urlp.append('type', newType)
-	}	
-	var url = window.location.href;
+		urlp.append('type', newType);
+	}
+
+	let url = window.location.href;
     url = url.split('?')[0];
-	url += '?' + urlp.toString()
-	window.location.href = url
+	url += '?' + urlp.toString();
+	window.location.href = url;
 }
 
 //sets the search field
 function setField(){
-	newType = document.getElementById("searchField").value
-	const urlp = new URLSearchParams(window.location.search)
+	newType = document.getElementById("searchField").value;
+	const urlp = new URLSearchParams(window.location.search);
+
 	if(urlp.has('field')){
-		urlp.set('field', newType)
+		urlp.set('field', newType);
 	} else {
-		urlp.append('field', newType)
-	}	
-	var url = window.location.href;
+		urlp.append('field', newType);
+	}
+
+	let url = window.location.href;
     url = url.split('?')[0];
-	url += '?' + urlp.toString()
-	window.location.href = url
+	url += '?' + urlp.toString();
+	window.location.href = url;
 }
 
 // Counts the number of customers a given employee represents
@@ -241,15 +253,15 @@ function strToColor(str) {
 //checks if search matches for a specific field
 function checkField(field, name, customer, city, state, country, key){
 	if(field == 'name'){
-		return name.toLowerCase().includes(searchKey)
+		return name.toLowerCase().includes(searchKey);
 	} else if(field == 'customer'){
-		return customer.toLowerCase().includes(searchKey)
+		return customer.toLowerCase().includes(searchKey);
 	} else if(field == 'city'){
-		return city.toLowerCase().includes(searchKey)
+		return city.toLowerCase().includes(searchKey);
 	} else if(field == 'state'){
-		return state.toLowerCase().includes(searchKey)
+		return state.toLowerCase().includes(searchKey);
 	} else {
-		return country.toLowerCase().includes(searchKey)
+		return country.toLowerCase().includes(searchKey);
 	}
 }
 
@@ -271,7 +283,7 @@ function addTSEFilter(tseName) {
 
 function noise(str){
 	num = 0.0;
-	for(var i = 0; i < str.length; i++){
+	for(let i = 0; i < str.length; i++){
 		num += str.charCodeAt(0) * 10000.0;
 	}
 	one = 100000.0;
@@ -305,33 +317,34 @@ function initialMapLoad(data){
         let customer = data[i][0].trim();
         let city = data[i][1].trim();
 		let state = data[i][2].trim();
-		latitdude = data[i][6];
+		latitude = data[i][6];
 		longtitude = data[i][7];
         let country = "United States";
-		const urlp = new URLSearchParams(window.location.search)
-		var type = 'and'
-		var field = 'all'
+		
+		const urlp = new URLSearchParams(window.location.search);
+		let type = 'and';
+		let field = 'all';
 		
 		if(urlp.has('type')){
-			type = urlp.get('type')
+			type = urlp.get('type');
 		}
 		if(urlp.has('field')){
-			field = urlp.get('field')
+			field = urlp.get('field');
 		}
 		
-		pass = true
+		pass = true;
 		
 		if(type == 'and'){
-			pass = true
+			pass = true;
 			for(let i = 0; i < keys.length; i++){
-				searchKey = keys[i].toLowerCase()
+				searchKey = keys[i].toLowerCase();
 				if(field == 'all'){
 					if(!(name.toLowerCase().includes(searchKey) || customer.toLowerCase().includes(searchKey) || city.toLowerCase().includes(searchKey) || state.toLowerCase().includes(searchKey) || country.toLowerCase().includes(searchKey))){
-						pass = false
+						pass = false;
 					}
 				} else {
 					if(!checkField(field, name, customer, city, state, country, searchKey)){
-						pass = false
+						pass = false;
 					}
 				}
 			}
@@ -341,29 +354,30 @@ function initialMapLoad(data){
 				searchKey = keys[i].toLowerCase().trim()
 				if(field == 'all'){
 					if((name.toLowerCase().trim().includes(searchKey) || customer.toLowerCase().trim().includes(searchKey) || city.toLowerCase().trim().includes(searchKey) || state.toLowerCase().trim().includes(searchKey) || country.toLowerCase().trim().includes(searchKey))){
-						pass = true
+						pass = true;
 					}
 				} else {
 					if(checkField(field, name, customer, city, state, country, searchKey)){
-						pass = true
+						pass = true;
 					}
 				}
 			}
 		}
+
 		if(pass || !urlp.has('search')){		
 			// Adds employee name to array of unique employee names (if not already added)
 			if (!nameUnique.includes(name)) {
 				nameUnique.push(name);
 			}
 			// Fetches location data from MapQuest
-			if(latitdude === null || longtitude===null){ //If we don't have location coordinates call getCoor
+			if(latitude === null || longtitude===null){ //If we don't have location coordinates call getCoor
 			getCoor(city, state, name, customer).then(fromData => {
 				let latLng = fromData[0].results[0].locations[0].displayLatLng;
-				latitdude = latLng.lat;
+				latitude = latLng.lat;
 				longtitude = latLng.lng;
-				data[i][6] = latitdude;
+				data[i][6] = latitude;
 				data[i][7] = longtitude;
-				let marker = L.marker([latitdude, longtitude], {
+				let marker = L.marker([latitude, longtitude], {
 					text: name,
 					subtext: city,
 					position: 'down',
@@ -373,7 +387,7 @@ function initialMapLoad(data){
 						secondaryColor: '#000000',
 						size: 'sm'
 					})
-				})
+				});
 				
 				 // Assign a popup with customer's information to appear above customer's map marker on click
 				 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
@@ -385,9 +399,9 @@ function initialMapLoad(data){
 				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
 			});
 		} else {//if we have coordinates use our stored coordinates
-			latitdude= parseFloat(latitdude);
+			latitude= parseFloat(latitude);
 			longtitude = parseFloat(longtitude);
-			let marker = L.marker([latitdude, longtitude], {
+			let marker = L.marker([latitude, longtitude], {
 				text: name,
 				subtext: city,
 				position: 'down',
@@ -397,7 +411,7 @@ function initialMapLoad(data){
 					secondaryColor: '#000000',
 					size: 'sm'
 				})
-			})
+			});
 
 			 // Assign a popup with customer's information to appear above customer's map marker on click
 			 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
@@ -406,7 +420,7 @@ function initialMapLoad(data){
 			 customerMarkers.push(marker);
 
 			 // Adds clickable customer entry in leftbar list
-			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitdude + ', ' + longtitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
+			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitude + ', ' + longtitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
 
 		}
 		}
@@ -459,7 +473,7 @@ function loadIntoMap(people){
         let customer = people[i][0].trim();
         let city = people[i][1].trim();
 		let state = people[i][2].trim();
-		let latitdude = people[i][6];
+		let latitude = people[i][6];
 		let longtitude = people[i][7];
         let country = "United States";
 
@@ -468,7 +482,7 @@ function loadIntoMap(people){
         }
 
             // Adds customer marker to map with returned info
-            let marker = L.marker([latitdude, longtitude], {
+            let marker = L.marker([latitude, longtitude], {
                 text: name,
                 subtext: city,
                 position: 'down',
@@ -485,7 +499,7 @@ function loadIntoMap(people){
              marker.bindPopup(popupContent).openPopup();
 
 			 // Adds clickable customer entry in leftbar list
-			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitdude + ', ' + longtitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
+			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitude + ', ' + longtitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
     }
 
     // Sorts nameUnique into nameUniqueOrdered for printing in alphabetical order

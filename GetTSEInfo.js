@@ -25,17 +25,17 @@ function loadTSEmap(d) {
 		let TSE = TSEdata[i][0].trim();
 		let city = TSEdata[i][1].trim();
 		let state = TSEdata[i][2].trim();
-		latitdude = TSEdata[i][4];
+		latitude = TSEdata[i][4];
 		longtitude = TSEdata[i][4];
         let popupContent = '<div style="font-size: 14px;"><div><b>TSE Name: </b>' + TSE + '</div></div>';
 		// Fetches location data from MapQuest
-		if (latitdude === null || longtitude === null) {
+		if (latitude === null || longtitude === null) {
 			//If we don't have location coordinates call getCoor
 			getCoor(city, state, TSE).then((fromData) => {
 				let latLng = fromData[0].results[0].locations[0].displayLatLng;
-				latitdude = latLng.lat;
+				latitude = latLng.lat;
 				longtitude = latLng.lng;
-				marker = L.marker([latitdude, longtitude], {
+				marker = L.marker([latitude, longtitude], {
 					text: name,
 					subtext: city,
 					position: 'down',
@@ -49,9 +49,9 @@ function loadTSEmap(d) {
 			});
 		} else {
 			//if we have coordinates use our stored coordinates
-			latitdude = parseFloat(latitdude);
+			latitude = parseFloat(latitude);
 			longtitude = parseFloat(longtitude);
-			marker = L.marker([latitdude, longtitude], {
+			marker = L.marker([latitude, longtitude], {
 				text: name,
 				subtext: city,
 				position: 'down',

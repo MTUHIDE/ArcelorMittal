@@ -1,13 +1,11 @@
 // Hold customer data
 let data;
 //TSE Location data
-let TSEdata;
+let TSEdata = [];
 
 // MapQuest API key
-const key = "Ao6wUe2zwTFeXVlE6kSxwDxVwM1My2Fu";
+const key = "BCpiEzEYyYG4KReA4QHjVer6C201dpYp";
 
-let nameUnique = [];
-let nameUniqueOrdered = [];
 let TSEOrdered = [];
 let customerMarkers = [];
 let TSEMarkers = [];
@@ -23,6 +21,9 @@ let featureGroup;
 let displayCustomers = true;
 let displayTSEs = false;
 let customerHTML = '';
+
+let type = 'and';
+let field = 'all';
 
 // Switches from Customers tab to TSEs tab
 const switchToTSE = () => {
@@ -221,21 +222,6 @@ function timesIn(value) {
     return count;
 }
 
-// Counts the number of customers a given employee represents (new)
-function timesInNew(value) {
-	// change value format from LastName, FirstName to FirstName LastName
-	let arr = value.split(", ");
-	let name = arr[1] + " " + arr[0];
-
-    let count = 0;
-    for (let i = 0; i < data.length; i++) {
-        if (data[i][3].trim() == name) {
-            count++;
-        }
-    }
-    return count;
-}
-
 // Hashes a string to generate a unique color
 function strToColor(str) {
     let hash = 0;
@@ -297,7 +283,7 @@ function noise(str){
 function initialMapLoad(data){
 	loadkeys();
     initSearch();
-	getTSEList();
+	getTSEList(keys);
     L.mapquest.key = key;
 
     // 'map' refers to a <div> element with the ID map
@@ -318,12 +304,12 @@ function initialMapLoad(data){
         let city = data[i][1].trim();
 		let state = data[i][2].trim();
 		latitude = data[i][6];
-		longtitude = data[i][7];
+		longitude = data[i][7];
         let country = "United States";
 		
-		const urlp = new URLSearchParams(window.location.search);
-		let type = 'and';
-		let field = 'all';
+		urlp = new URLSearchParams(window.location.search);
+		type = 'and';
+		field = 'all';
 		
 		if(urlp.has('type')){
 			type = urlp.get('type');
@@ -364,20 +350,40 @@ function initialMapLoad(data){
 			}
 		}
 
-		if(pass || !urlp.has('search')){		
-			// Adds employee name to array of unique employee names (if not already added)
-			if (!nameUnique.includes(name)) {
-				nameUnique.push(name);
-			}
+		if(pass || !urlp.has('search')){
 			// Fetches location data from MapQuest
-			if(latitude === null || longtitude===null){ //If we don't have location coordinates call getCoor
-			getCoor(city, state, name, customer).then(fromData => {
-				let latLng = fromData[0].results[0].locations[0].displayLatLng;
-				latitude = latLng.lat;
-				longtitude = latLng.lng;
-				data[i][6] = latitude;
-				data[i][7] = longtitude;
-				let marker = L.marker([latitude, longtitude], {
+			if(latitude === null || longitude===null){ //If we don't have location coordinates call getCoor
+				getCoor(city, state, name, customer).then(fromData => {
+					let latLng = fromData[0].results[0].locations[0].displayLatLng;
+					latitude = latLng.lat;
+					longitude = latLng.lng;
+					data[i][6] = latitude;
+					data[i][7] = longitude;
+					let marker = L.marker([latitude, longitude], {
+						text: name,
+						subtext: city,
+						position: 'down',
+						type: 'marker',
+						icon: L.mapquest.icons.marker({
+							primaryColor: strToColor(name),
+							secondaryColor: '#000000',
+							size: 'sm'
+						})
+					});
+				
+					// Assign a popup with customer's information to appear above customer's map marker on click
+					let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
+					marker.bindPopup(popupContent).openPopup();
+
+					customerMarkers.push(marker);
+
+					// Adds clickable customer entry in leftbar list
+					document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
+				});
+			} else {//if we have coordinates use our stored coordinates
+				latitude= parseFloat(latitude);
+				longitude = parseFloat(longitude);
+				let marker = L.marker([latitude, longitude], {
 					text: name,
 					subtext: city,
 					position: 'down',
@@ -388,81 +394,28 @@ function initialMapLoad(data){
 						size: 'sm'
 					})
 				});
-				
-				 // Assign a popup with customer's information to appear above customer's map marker on click
-				 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
-				 marker.bindPopup(popupContent).openPopup();
 
-				 customerMarkers.push(marker);
+				// Assign a popup with customer's information to appear above customer's map marker on click
+				let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
+				marker.bindPopup(popupContent).openPopup();
 
-				 // Adds clickable customer entry in leftbar list
-				 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
-			});
-		} else {//if we have coordinates use our stored coordinates
-			latitude= parseFloat(latitude);
-			longtitude = parseFloat(longtitude);
-			let marker = L.marker([latitude, longtitude], {
-				text: name,
-				subtext: city,
-				position: 'down',
-				type: 'marker',
-				icon: L.mapquest.icons.marker({
-					primaryColor: strToColor(name),
-					secondaryColor: '#000000',
-					size: 'sm'
-				})
-			});
+				customerMarkers.push(marker);
 
-			 // Assign a popup with customer's information to appear above customer's map marker on click
-			 let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
-			 marker.bindPopup(popupContent).openPopup();
+				// Adds clickable customer entry in leftbar list
+				document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitude + ', ' + longitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
 
-			 customerMarkers.push(marker);
-
-			 // Adds clickable customer entry in leftbar list
-			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitude + ', ' + longtitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
-
-		}
+			}
 		}
     }
 
 	customerMarkers.forEach(marker => {
 		marker.addTo(Customerlayer);
 	});
-	
-	nameUniqueOrdered.push([nameUnique[0], timesIn([nameUnique[0]])])
-    for (let i = 1; i < nameUnique.length; i++) {
-        let count = timesIn(nameUnique[i]);
-
-        for (let j = 0; j < nameUniqueOrdered.length; j++) {
-            if (count >= nameUniqueOrdered[j][1]) {
-                nameUniqueOrdered.splice(j, 0, [nameUnique[i], count]);
-                break;
-            } else if (j == nameUniqueOrdered.length - 1) {		
-                nameUniqueOrdered.push([nameUnique[i], count]);
-                break;
-            }
-        }
-
-    }
-	if(nameUnique.length == 0){
-		// document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
-		document.getElementById("customers").innerHTML += '<div class="subcustomer" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
-	} else {
-		// for (let i = 0; i < nameUniqueOrdered.length; i++) {
-		// 	document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + i + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';
-		// }
-	}
 }
-
-
-
 
 //Loads results of filter into the map
 function loadIntoMap(people){
     //Reset values
-    nameUnique.length = 0;
-    nameUniqueOrdered.length = 0;
     Customerlayer.clearLayers();
     Customerlayer = L.layerGroup().addTo(map);
 	document.getElementById("people").innerHTML = '';
@@ -474,15 +427,11 @@ function loadIntoMap(people){
         let city = people[i][1].trim();
 		let state = people[i][2].trim();
 		let latitude = people[i][6];
-		let longtitude = people[i][7];
+		let longitude = people[i][7];
         let country = "United States";
 
-        if (!nameUnique.includes(name)) {
-            nameUnique.push(name);
-        }
-
             // Adds customer marker to map with returned info
-            let marker = L.marker([latitude, longtitude], {
+            let marker = L.marker([latitude, longitude], {
                 text: name,
                 subtext: city,
                 position: 'down',
@@ -499,35 +448,8 @@ function loadIntoMap(people){
              marker.bindPopup(popupContent).openPopup();
 
 			 // Adds clickable customer entry in leftbar list
-			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitude + ', ' + longtitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
+			 document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitude + ', ' + longitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
     }
-
-    // Sorts nameUnique into nameUniqueOrdered for printing in alphabetical order
-	nameUniqueOrdered.push([nameUnique[0], timesIn([nameUnique[0]])]);
-	for (let i = 1; i < nameUnique.length; i++) {
-        let count = timesIn(nameUnique[i]);
-
-        for (let j = 0; j < nameUniqueOrdered.length; j++) {
-            if (count >= nameUniqueOrdered[j][1]) {
-                nameUniqueOrdered.splice(j, 0, [nameUnique[i], count]);
-                break;
-            } else if (j == nameUniqueOrdered.length - 1) {
-                nameUniqueOrdered.push([nameUnique[i], count]);
-                break;
-            }
-        }
-
-    }
-
-    // Add all employees and their customer count to the info bar on the left of the map
-	if(nameUnique.length == 0){
-		// document.getElementById("people").innerHTML += '<div class="subpeople" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
-		document.getElementById("customers").innerHTML += '<div class="subcustomer" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: black;">No Results</div>';
-	} else {
-    	// for (let i = 0; i < nameUniqueOrdered.length; i++) {
-		// 	document.getElementById("people").innerHTML += '<div class="subpeople" onclick="addTSEFilter(' + i + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(nameUniqueOrdered[i][0]) + ';">' + nameUniqueOrdered[i][0] + '<span style="float: right">(' + nameUniqueOrdered[i][1] + ')</span></div>';    	
-		// }
-	}
 }
 
 document.addEventListener("DOMContentLoaded", function() { 

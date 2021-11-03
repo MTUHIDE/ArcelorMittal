@@ -3,10 +3,26 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
+function debug_to_console($data) {
+    // $output = $data;
+    // if (is_array($output))
+    //     $output = implode(',', $output);
+
+    // echo json_encode($output);
+    $arr = array('a' => 1, 'b' => 2, 'c' => 3, 'd' => 4, 'e' => 5);
+    echo json_encode($arr);
+}
+
 $servername = "classdb.it.mtu.edu";
 /* Uncomment and insert credentials here*/
-$username = "arcelormittal_ro";
-$password = "password";
+$myfile = fopen("https://classdb.it.mtu.edu/cs3141/ArcelorMittal/login.txt", "r") or die("Unable to open file!");
+$username = fgets($myfile);
+debug_to_console($username);
+$password = fgets($myfile);
+debug_to_console($password);
+fclose($myfile);
+$username = "arcelormittal_rw";
+$password = "";
 
 try{
     $conn = new PDO("mysql:host=$servername;port=3307; dbname=arcelormittal", $username,

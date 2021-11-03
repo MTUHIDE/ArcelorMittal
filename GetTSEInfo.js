@@ -114,7 +114,13 @@ function getCustomerList() {
 		method: 'get',
 		url: GetCustomerSummaryURL,
 		success: function (z) {
-			data = JSON.parse(z);
+			data = {};
+			try {
+				data = JSON.parse(z);
+			} catch(e) {
+				console.error(e);
+			}
+			
 			initialMapLoad(data);
 		},
 	});

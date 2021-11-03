@@ -59,7 +59,7 @@ if( $xlsx = SimpleXLSX::parse('uploads/'.$fileName)){
         * 1 = City
         * 2 = State
         * 3 = TSE
-        * 4 = Reigon
+        * 4 = Region
         */ 
         //insert row into database
             try{

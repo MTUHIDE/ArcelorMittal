@@ -14,11 +14,15 @@ if(isset($_POST['username']) && isset($_POST['password'])){
 
 function login($username,$password){
     //Connect to Database
-    $u = "mtsayles";
-    $p = "343Guiltyspark";
-    $servername = "classdb.it.mtu.edu";
+    $servername = "localhost";
+    $u = "arcelormittal_arcelormittal";
+    
+    $myfile = fopen("login.txt", "r") or die("Unable to open file!");
+    $p = fgets($myfile,filesize("login.txt") + 1);
+    fclose($myfile);
+
     try{
-        $conn = new PDO("mysql:host=$servername;port=3307; dbname=arcelormittal", $u,
+        $conn = new PDO("mysql:host=$servername; dbname=arcelormittal_arcelormittal", $u,
         $p);
         $conn -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         //$hashedPassword = password_hash($password,PASSWORD_DEFAULT);

@@ -1,5 +1,5 @@
-GetTSEListURL = 'https://classdb.it.mtu.edu/cs3141/ArcelorMittal/GetTSEList.php';
-GetCustomerSummaryURL = 'https://classdb.it.mtu.edu/cs3141/ArcelorMittal/GetCustomerList.php';
+GetTSEListURL = 'GetTSEList.php';
+GetCustomerSummaryURL = 'GetCustomerList.php';
 
 //Takes a name and returns a json list with their information from the Summary table
 function getTSEList(tkeys) {
@@ -16,6 +16,7 @@ function getTSEList(tkeys) {
 function loadTSEmap(d, tkeys) {
 	let tpass;
 	let tsearchKey;
+	let TSEOrdered = [];
 
     TSElayer = L.layerGroup();
 	/*
@@ -24,15 +25,17 @@ function loadTSEmap(d, tkeys) {
 	 * 2 = State
 	 */
 	for (let i = 0; i < TSEdata.length; i++) {
-		let arr = TSEdata[i][0].split(", ");
-		let fullName = arr[1] + " " + arr[0];
+		// Change TSE name from Last, First to First Last
+		//let arr = TSEdata[i][0].split(", ");
+		//let fullName = arr[1] + " " + arr[0];
+		let TSE = TSEdata[i][0].trim();
 
 		if(type == 'and'){
 			tpass = true;
 			for(let j = 0; j < tkeys.length; j++){
 				tsearchKey = tkeys[j].toLowerCase();
 				if(field == 'all' || field == 'name'){
-					if(!(fullName.toLowerCase().trim().includes(tsearchKey))){
+					if(!(TSE.toLowerCase().trim().includes(tsearchKey))){
 						tpass = false;
 					}
 				}
@@ -42,7 +45,7 @@ function loadTSEmap(d, tkeys) {
 			for(let j = 0; j < tkeys.length; j++){
 				tsearchKey = tkeys[j].toLowerCase().trim();
 				if(field == 'all' || field == 'name'){
-					if((fullName.toLowerCase().trim().includes(tsearchKey))){
+					if((TSE.toLowerCase().trim().includes(tsearchKey))){
 						tpass = true;
 					}
 				}
@@ -51,22 +54,21 @@ function loadTSEmap(d, tkeys) {
 
 		if(tpass){
 			// Stores each item in current customer array in its own variable
-			let TSE = TSEdata[i][0].trim();
-			let city = TSEdata[i][1].trim();
-			let state = TSEdata[i][2].trim();
+			let city = TSEdata[i][1] ? TSEdata[i][1].trim() : "";
+			let state = TSEdata[i][2] ? TSEdata[i][2].trim() : "";
 			latitude = TSEdata[i][4];
 			longitude = TSEdata[i][4];
 			let popupContent = '<div style="font-size: 14px;"><div><b>TSE Name: </b>' + TSE + '</div></div>';
 
 			// Fetches location data from MapQuest
-			if (latitude === null || longitude === null) {
+			if ((latitude === null || longitude === null) && (city != "" && state != "")) {
 				//If we don't have location coordinates call getCoor
 				getCoor(city, state, TSE).then((fromData) => {
 					let latLng = fromData[0].results[0].locations[0].displayLatLng;
 					latitude = latLng.lat;
 					longitude = latLng.lng;
 					marker = L.marker([latitude, longitude], {
-						text: name,
+						text: TSE,
 						subtext: city,
 						position: 'down',
 						type: 'marker',
@@ -77,12 +79,12 @@ function loadTSEmap(d, tkeys) {
 						}),
 					}).bindPopup(popupContent).openPopup().addTo(TSElayer);
 				});
-			} else {
+			} else if(latitude && longitude) {
 				//if we have coordinates use our stored coordinates
 				latitude = parseFloat(latitude);
 				longitude = parseFloat(longitude);
 				marker = L.marker([latitude, longitude], {
-					text: name,
+					text: TSE,
 					subtext: city,
 					position: 'down',
 					type: 'marker',
@@ -94,7 +96,7 @@ function loadTSEmap(d, tkeys) {
 				}).bindPopup(popupContent).openPopup().addTo(TSElayer);
 			}
 
-			TSEOrdered.push(fullName);
+			TSEOrdered.push(TSE);
 			TSEOrdered.sort();
 		}
 		

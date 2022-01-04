@@ -21,19 +21,19 @@
 		    Formdata.append("password", password);
             $.ajax({
                     method: "Post",
-                    url: "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/Login.php",
+                    url: "Login.php",
                     data: Formdata,
                     cache: false,
                     processData: false,
                     contentType: false,
                     success: function(x){
                        if(x == "false"){ //Redirect to login page
-                        window.location.href = "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/login.html";
+                        window.location.href = "login.html";
                        }
                     }
                 });
 	    } else {
-	    	window.location.href = "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/login.html";
+	    	window.location.href = "login.html";
         }
     });
 
@@ -43,7 +43,7 @@
             Formdata.append("Data", file);
             console.log(Formdata);
             $.ajax({
-                url:"https://classdb.it.mtu.edu/cs3141/ArcelorMittal/TSEUploadHandler.php", //php endpoint
+                url:"TSEUploadHandler.php", //php endpoint
                 data: Formdata,
                 cache: false,
                 processData: false,

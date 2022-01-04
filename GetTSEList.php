@@ -3,12 +3,15 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, POST');
 header("Access-Control-Allow-Headers: X-Requested-With");
 
-$servername = "classdb.it.mtu.edu";
-$username = "arcelormittal_ro";
-$password = "password";
+$servername = "localhost";
+$username = "arcelormittal_arcelormittal";
+
+$myfile = fopen("login.txt", "r") or die("Unable to open file!");
+$password = fgets($myfile,filesize("login.txt") + 1);
+fclose($myfile);
 
 try{
-    $conn = new PDO("mysql:host=$servername;port=3307; dbname=arcelormittal", $username,
+    $conn = new PDO("mysql:host=$servername; dbname=arcelormittal_arcelormittal", $username,
     $password);
     $conn -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     getTSEInfo($conn);

@@ -3,8 +3,8 @@ let data;
 //TSE Location data
 let TSEdata = [];
 
-// MapQuest API key
-const key = "BCpiEzEYyYG4KReA4QHjVer6C201dpYp";
+// MapQuest API key - new as of 11/11/2021
+const key = "F8yvlb0qppQwLTLf5R9xznywhbgvp9Z7";
 
 let TSEOrdered = [];
 let customerMarkers = [];
@@ -71,8 +71,8 @@ const checkTSEs = () => {
 async function getCoor(city, state, name, customer) {
     let response = await fetch('https://www.mapquestapi.com/geocoding/v1/address?key=' + key + '&location=' + city + "," + state);
     let data = await response.json();
-	data.lat = parseFloat(data.lat) + parseFloat(noise(customer+name+city));
-	data.lng = parseFloat(data.lng) + parseFloat(noise(customer+name+state));
+	data.latLng = data.results[0].locations[0].latLng;
+	// + parseFloat(noise(customer+name+city));
     return [data, name, customer];
 }
 
@@ -104,8 +104,8 @@ function initSearch(){
 }
 
 function removeKey(key){
-	key = key.replace("+", " ");
-	key = key.replace("%27", "'");
+	key = key.replaceAll("+", " ");
+	key = key.replaceAll("%27", "'");
 	let newParams = "";
 
 	for(let i = 0; i < keys.length; i++){
@@ -134,8 +134,8 @@ function loadkeys(){
 		urlKeysParsed = search.split('*');
 		for(let i = 0; i < urlKeysParsed.length; i++){
 			keys.push(urlKeysParsed[i]);
-			nonSpace = urlKeysParsed[i].replace(" ", "+");
-			nonSpace = nonSpace.replace("'", "%27");
+			nonSpace = urlKeysParsed[i].replaceAll(" ", "+");
+			nonSpace = nonSpace.replaceAll("'", "%27");
 			document.getElementById("keys").innerHTML += "<div class='keys'>" + urlKeysParsed[i] + "<button onclick=removeKey('" + nonSpace + "') class='xbutton' >&times</button></div>";
 		}
 	}
@@ -280,7 +280,7 @@ function noise(str){
 }
 
 //Performs the inital load of the map when loading the site
-function initialMapLoad(data){
+async function initialMapLoad(data){
 	loadkeys();
     initSearch();
 	getTSEList(keys);
@@ -303,8 +303,8 @@ function initialMapLoad(data){
         let customer = data[i][0].trim();
         let city = data[i][1].trim();
 		let state = data[i][2].trim();
-		latitude = data[i][6];
-		longitude = data[i][7];
+		let latitude = data[i][6];
+		let longitude = data[i][7];
         let country = "United States";
 		
 		urlp = new URLSearchParams(window.location.search);
@@ -353,58 +353,35 @@ function initialMapLoad(data){
 		if(pass || !urlp.has('search')){
 			// Fetches location data from MapQuest
 			if(latitude === null || longitude===null){ //If we don't have location coordinates call getCoor
-				getCoor(city, state, name, customer).then(fromData => {
-					let latLng = fromData[0].results[0].locations[0].displayLatLng;
+				await getCoor(city, state, name, customer).then(fromData => {
+					let latLng = fromData[0].latLng;
 					latitude = latLng.lat;
 					longitude = latLng.lng;
 					data[i][6] = latitude;
 					data[i][7] = longitude;
-					let marker = L.marker([latitude, longitude], {
-						text: name,
-						subtext: city,
-						position: 'down',
-						type: 'marker',
-						icon: L.mapquest.icons.marker({
-							primaryColor: strToColor(name),
-							secondaryColor: '#000000',
-							size: 'sm'
-						})
-					});
-				
-					// Assign a popup with customer's information to appear above customer's map marker on click
-					let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
-					marker.bindPopup(popupContent).openPopup();
-
-					customerMarkers.push(marker);
-
-					// Adds clickable customer entry in leftbar list
-					document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latLng.lat + ', ' + latLng.lng + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
 				});
-			} else {//if we have coordinates use our stored coordinates
-				latitude= parseFloat(latitude);
-				longitude = parseFloat(longitude);
-				let marker = L.marker([latitude, longitude], {
-					text: name,
-					subtext: city,
-					position: 'down',
-					type: 'marker',
-					icon: L.mapquest.icons.marker({
-						primaryColor: strToColor(name),
-						secondaryColor: '#000000',
-						size: 'sm'
-					})
-				});
-
-				// Assign a popup with customer's information to appear above customer's map marker on click
-				let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
-				marker.bindPopup(popupContent).openPopup();
-
-				customerMarkers.push(marker);
-
-				// Adds clickable customer entry in leftbar list
-				document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitude + ', ' + longitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
-
 			}
+			
+			let marker = L.marker([latitude, longitude], {
+				text: name,
+				subtext: city,
+				position: 'down',
+				type: 'marker',
+				icon: L.mapquest.icons.marker({
+					primaryColor: strToColor(name),
+					secondaryColor: '#000000',
+					size: 'sm'
+				})
+			});
+
+			// Assign a popup with customer's information to appear above customer's map marker on click
+			let popupContent = '<div style="font-size: 14px;"><div><b>Location: </b>' + city + ', ' + state + '</div><div><b>TSE: </b>' + name + '</div><div><b>Customer:</b> ' + customer + '</div></div>';
+			marker.bindPopup(popupContent).openPopup();
+
+			customerMarkers.push(marker);
+
+			// Adds clickable customer entry in leftbar list
+			document.getElementById("customers").innerHTML += '<div class="subcustomer" onclick="centerMap(' + latitude + ', ' + longitude + ')" style="margin: 5px; padding: 4px; padding-left: 5px; font-size: 16px; border-style: solid; border-width: 4px; border-radius: 7px; border-color: ' + strToColor(name) + ';">' + customer + ' - ' + city + ', ' + state + '</div>';
 		}
     }
 
@@ -462,7 +439,7 @@ document.addEventListener("DOMContentLoaded", function() {
 		Formdata.append("password", password);
 		$.ajax({
 			method: "Post",
-			url: "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/Login.php",
+			url: "Login.php",
 			data: Formdata,
 			cache: false,
 			processData: false,
@@ -472,13 +449,13 @@ document.addEventListener("DOMContentLoaded", function() {
 				let u = data.username;
 				let p = data.password;
 				if(x == "false"){//Redirect to login
-					window.location.href = "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/login.html";
+					window.location.href = "login.html";
 				} else {
 					getCustomerList();
 				}
 			}
 		});
 	} else {
-		window.location.href = "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/login.html";
+		window.location.href = "login.html";
 	}
 });

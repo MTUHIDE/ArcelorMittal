@@ -1,79 +1,90 @@
 <?php
-//This file is used to allow php to read from XSLX, source can be found here https://github.com/shuchkin/simplexlsx
-include (__DIR__.'/SimpleXLSX.php');
-header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Methods: GET, POST');
-header("Access-Control-Allow-Headers: X-Requested-With");
+    require 'vendor/autoload.php';
+    use PhpOffice\PhpSpreadsheet\Spreadsheet;
+    use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-if (isset($_FILES['Data'])) {
-    // echo $_FILES['Data'];
-    // echo $_FILES['Data']['tmp_name'];
-    move_uploaded_file($_FILES['Data']['tmp_name'], "uploads/".$_FILES['Data']['name']);
-    $fileName = $_FILES['Data']['name'];
-    echo "Uploaded";
-    connectToDB($fileName);
-} else{
-    echo "Failed upload";
-}
+    // Move uploaded file into 'uploads' folder
+    if (isset($_FILES['Data'])) {
+        move_uploaded_file($_FILES['Data']['tmp_name'], "uploads/".$_FILES['Data']['name']);
+        $fileName = $_FILES['Data']['name'];
+        echo "Uploaded";
+        connectToDB($fileName);
+    } else{
+        echo "Failed upload";
+    }
 
+    function connectToDB($fileName){
+        //Connect to database
+        $servername = "localhost";
+        $username = "arcelormittal_arcelormittal";
+        
+        $myfile = fopen("login.txt", "r") or die("Unable to open file!");
+        $password = fgets($myfile,filesize("login.txt") + 1);
+        fclose($myfile);
+        
+        try{
+            $conn = new PDO("mysql:host=$servername; dbname=arcelormittal_arcelormittal", $username,
+            $password);
+            $conn -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            ClearTable($conn);
+            ReadData($conn,$fileName);
+        } catch (PDOException $e){
+            echo "Connection failed:" . $e->getMessage();
+        }
+    }
 
-function connectToDB($fileName){
-// Uncomment and insert credentials here   
-$username = "mtsayles";
-$password = "343Guiltyspark";
-//Connect to database
+    function ClearTable($conn) {
+        try{
+            $getInfo = $conn->prepare("DELETE FROM TSELocations");
+            $getInfo->execute();
+        } catch (PDOException $e){
+            echo "Error: " . $e->getMessage();
+        }
+    }
 
+    function ReadData($conn,$fileName){
+        // Get the spreadsheet from the uploads folder
+        $filePath = "uploads/" . $fileName;
+        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($filePath);
 
-$servername = "classdb.it.mtu.edu";
-try{
-    $conn = new PDO("mysql:host=$servername;port=3307; dbname=arcelormittal", $username,
-    $password);
-    $conn -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    ReadData($conn,$fileName);
-} catch (PDOException $e){
-    echo "Connection failed:" . $e->getMessage();
-}
-}
-function ReadData($conn,$fileName){
-if( $xlsx = SimpleXLSX::parse('uploads/'.$fileName)){
-    //Remove current data in DB
-    $insertData = $conn->prepare("SET SQL_SAFE_UPDATES=0;
-    Delete from TSELocations where Latitude is Null;
-    SET SQL_SAFE_UPDATES=1;");
-    $insertData->execute();
+        // Select the sheet TSEInfo from the spreadsheet
+        $spreadsheet -> setActiveSheetIndexByName("TSEInfo");
 
-    $currentRow = 0;
-    foreach ( $xlsx->rows() as $r => $row ) {
-        $data = array();//Arrary to hold the values of a row
-        if($currentRow != 0){
-            foreach ( $row as $c => $cell ) {
-                if($cell != ""){
-                    //echo $cell;
-                //Makes sure empty cells are not added to array
-                    array_push($data,$cell);
-                }
-            }
-        //Insert the row into the database
-        /* Values in array and their corresponding data
-        * 0 = TSE
-        * 1 = City
-        * 2 = State
-        */ 
-        //insert row into database
+        // Find the number of rows in the sheet
+        $rows = $spreadsheet -> getActiveSheet() -> getHighestDataRow();
+
+        // Select a cell range from within the sheet
+        $dataArray = $spreadsheet -> getActiveSheet()
+            -> rangeToArray(
+                'A4:A'.($rows - 6),
+                NULL,
+                FALSE,
+                FALSE,
+                FALSE
+            );
+
+        // Iterate through rows containing data
+        for($row = 0; $row <= $rows - 10; $row++) {
+            $data = array();
+
+            // TSE
+            array_push($data, $dataArray[$row][0]);
+            // City
+            array_push($data, NULL);
+            // State
+            array_push($data, NULL);
+            // Latitude
+            array_push($data, NULL);
+            // Longitude
+            array_push($data, NULL);
+
+            // Insert into database
             try{
-                $insertData = $conn->prepare("Insert INTO TSELocations (TSE, City, State) values (?,?,?);");
+                $insertData = $conn->prepare("Insert TSELocations (TSE, City, State, Latitude, Longitude) values (?,?,?,?,?)");
                 $insertData->execute($data);
             } catch(PDOException $e){
-                echo "Error".$e->getMessage();
-            } 
+                throw new Error($e->getMessage());
+            }
         }
-        //echo count($data);
-    $currentRow++;
     }
-} else {
-    echo SimpleXLSX::parseError();
-}
-}
-
-
 ?>

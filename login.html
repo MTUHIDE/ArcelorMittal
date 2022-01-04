@@ -17,18 +17,20 @@
                 Formdata.append("password", password);
                 $.ajax({
                     method: "Post",
-                    url: "https://classdb.it.mtu.edu/cs3141/ArcelorMittal/Login.php",
+                    url: "Login.php",
                     data: Formdata,
                     cache: false,
                     processData: false,
                     contentType: false,
                     success: function(x){
+                        console.log("PHP: " + x);
                         let data = JSON.parse(x);
                         let u = data.username;
                         let p = data.password;
+                        console.log("username: " + u + " password: " + p);
                         if(u == username){
                             //Redirect to main page
-                            window.location.href="https://classdb.it.mtu.edu/cs3141/ArcelorMittal/mapquest.html?u="+u+"&p="+p;
+                            window.location.href="mapquest.html?u="+u+"&p="+p;
                         } else{ //Invalid
                             alert("Username or Password is incorrect");
                         }

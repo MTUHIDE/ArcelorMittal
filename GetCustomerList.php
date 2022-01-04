@@ -13,19 +13,24 @@ function debug_to_console($data) {
     echo json_encode($arr);
 }
 
-$servername = "classdb.it.mtu.edu";
-/* Uncomment and insert credentials here*/
-$myfile = fopen("https://classdb.it.mtu.edu/cs3141/ArcelorMittal/login.txt", "r") or die("Unable to open file!");
-$username = fgets($myfile);
-debug_to_console($username);
-$password = fgets($myfile);
-debug_to_console($password);
+// $servername = "classdb.it.mtu.edu";
+// /* Uncomment and insert credentials here*/
+// $myfile = fopen("arcelormittal.enterprise.mtu.edu/login.txt", "r") or die("Unable to open file!");
+// $username = fgets($myfile);
+// debug_to_console($username);
+// $password = fgets($myfile);
+// debug_to_console($password);
+// fclose($myfile);
+
+$servername = "localhost";
+$username = "arcelormittal_arcelormittal";
+
+$myfile = fopen("login.txt", "r") or die("Unable to open file!");
+$password = fgets($myfile,filesize("login.txt") + 1);
 fclose($myfile);
-$username = "arcelormittal_rw";
-$password = "";
 
 try{
-    $conn = new PDO("mysql:host=$servername;port=3307; dbname=arcelormittal", $username,
+    $conn = new PDO("mysql:host=$servername; dbname=arcelormittal_arcelormittal", $username,
     $password);
     $conn -> setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     getAllInfo($conn);
